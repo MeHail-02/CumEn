@@ -1,0 +1,138 @@
+export interface Stone {
+  id: string;
+  name: string;
+  type: 'мрамор' | 'гранит' | 'кварцит';
+  color: 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый';
+  origin: string;
+  price: number; // руб/м²
+  image: string;
+  description: string;
+  thickness: string[];
+  finishing: string[];
+  inStock: boolean;
+  slabSize: string;
+  rarity: 'Премиум' | 'Эксклюзив' | 'Коллекционный';
+}
+
+export const stonesData: Stone[] = [
+  {
+    id: 'carrara-white',
+    name: 'Мрамор Carrara White',
+    type: 'мрамор',
+    color: 'белый',
+    origin: 'Италия (Каррара)',
+    price: 19500,
+    image: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&q=80&w=1200',
+    description: 'Легендарный белый итальянский мрамор с благородным мелкозернистым серым рисунком. Обладает мягким свечением изнутри, ценится скульпторами и архитекторами со времен Микеланджело. Идеально подходит для ванных комнат, настенных панно и изысканных порталов каминов.',
+    thickness: ['20 мм', '30 мм'],
+    finishing: ['Полировка (Polished)', 'Лощение (Honed)'],
+    inStock: true,
+    slabSize: '3050 х 1850 мм',
+    rarity: 'Премиум'
+  },
+  {
+    id: 'calacatta-gold',
+    name: 'Мрамор Calacatta Gold',
+    type: 'мрамор',
+    color: 'бежевый',
+    origin: 'Италия',
+    price: 45000,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
+    description: 'Один из самых востребованных и престижных сортов итальянского мрамора. Отличается ярким белым фоном с драматичными широкими серыми и тонкими золотыми прожилками. Придает интерьеру монументальную роскошь и статусность.',
+    thickness: ['20 мм'],
+    finishing: ['Полировка (Polished)'],
+    inStock: true,
+    slabSize: '3150 х 1950 мм',
+    rarity: 'Эксклюзив'
+  },
+  {
+    id: 'nero-marquina',
+    name: 'Мрамор Nero Marquina',
+    type: 'мрамор',
+    color: 'черный',
+    origin: 'Испания',
+    price: 24000,
+    image: 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&q=80&w=1200',
+    description: 'Черный мрамор глубокого угольного цвета со стильными хаотичными белыми прожилками кальцита. Великолепен в графических контрастных интерьерах, отлично подходит для напольных покрытий, ступеней и облицовки стен.',
+    thickness: ['20 мм', '30 мм'],
+    finishing: ['Полировка', 'Кожа (Leathered)'],
+    inStock: true,
+    slabSize: '2900 х 1600 мм',
+    rarity: 'Премиум'
+  },
+  {
+    id: 'patagonia-quartzite',
+    name: 'Кварцит Patagonia',
+    type: 'кварцит',
+    color: 'бежевый',
+    origin: 'Бразилия',
+    price: 95000,
+    image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&q=80&w=1200',
+    description: 'Шедевр природы, сочетающий в себе участки полупрозрачного кварца, темного биотита и золотистого полевого шпата. Этот кварцит часто используется со светодиодной подсветкой изнутри, превращая столешницы или панно в гипнотическое произведение искусства.',
+    thickness: ['20 мм'],
+    finishing: ['Полировка (Polished)'],
+    inStock: true,
+    slabSize: '3200 х 1900 мм',
+    rarity: 'Коллекционный'
+  },
+  {
+    id: 'emerald-green',
+    name: 'Кварцит Emerald Green',
+    type: 'кварцит',
+    color: 'зеленый',
+    origin: 'Бразилия',
+    price: 82000,
+    image: 'https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=1200',
+    description: 'Изумительный зеленый кварцит с глубоким изумрудным градиентом и включениями золота. Напоминает срезы вековых лесов или драгоценный нефрит. Обладает высочайшей прочностью кварцита, устойчив к кислотам и царапинам.',
+    thickness: ['20 мм', '30 мм'],
+    finishing: ['Полировка', 'Сатин (Satin)'],
+    inStock: false,
+    slabSize: '3100 х 1850 мм',
+    rarity: 'Коллекционный'
+  },
+  {
+    id: 'blue-bahia',
+    name: 'Гранит Blue Bahia',
+    type: 'гранит',
+    color: 'синий',
+    origin: 'Бразилия',
+    price: 110000,
+    image: 'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&q=80&w=1200',
+    description: 'Экзотический королевский полудрагоценный гранит насыщенного синего цвета с прожилками белого, золотого и серого цветов. Этот редкий минерал (содалит) ценится коллекционерами по всему миру за его неповторимую аквамариновую палитру.',
+    thickness: ['20 мм'],
+    finishing: ['Полировка (Polished)'],
+    inStock: true,
+    slabSize: '2800 х 1500 мм',
+    rarity: 'Коллекционный'
+  },
+  {
+    id: 'taj-mahal',
+    name: 'Кварцит Taj Mahal',
+    type: 'кварцит',
+    color: 'бежевый',
+    origin: 'Бразилия',
+    price: 52000,
+    image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=1200',
+    description: 'Элегантный кварцит теплого сливочно-бежевого цвета с мягкими прожилками. Визуально напоминает элитный мрамор, но при этом обладает твердостью и долговечностью гранита. Великолепное решение для кухонных островов и фартуков.',
+    thickness: ['20 мм', '30 мм'],
+    finishing: ['Полировка', 'Лощение', 'Кожа'],
+    inStock: true,
+    slabSize: '3200 х 1950 мм',
+    rarity: 'Эксклюзив'
+  },
+  {
+    id: 'absolute-black',
+    name: 'Гранит Absolute Black',
+    type: 'гранит',
+    color: 'черный',
+    origin: 'Индия',
+    price: 16500,
+    image: 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&q=80&w=1200',
+    description: 'Классический однородный глубокий черный гранит высокой плотности. Отличается минимальным количеством вкраплений, что создает ощущение бесконечной черной глубины. Обладает высочайшей прочностью, влагостойкостью и износостойкостью.',
+    thickness: ['20 мм', '30 мм', '40 мм'],
+    finishing: ['Полировка', 'Кожа (Leathered)', 'Бучардирование (Bush-Hammered)'],
+    inStock: true,
+    slabSize: '3200 x 1800 мм',
+    rarity: 'Премиум'
+  }
+];
