@@ -132,7 +132,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
 
           {/* Details & Specs Column */}
           <div className="detail-info-col">
-            <span className="info-rarity">{stone.rarity === 'Урал' ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
+            <span className="info-rarity">{(stone.rarity === 'Урал' || stone.rarity === 'Карелия') ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
             <h1 className="info-name">{stone.name}</h1>
             <p className="info-price">
               {stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
@@ -187,6 +187,24 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                     <tr>
                       <th>Истираемость</th>
                       <td>{stone.abrasion}</td>
+                    </tr>
+                  )}
+                  {stone.compressiveStrength && (
+                    <tr>
+                      <th>Предел прочности при сжатии</th>
+                      <td>{stone.compressiveStrength}</td>
+                    </tr>
+                  )}
+                  {stone.radiationClass && (
+                    <tr>
+                      <th>Радиационный класс</th>
+                      <td>{stone.radiationClass}</td>
+                    </tr>
+                  )}
+                  {stone.porosity && (
+                    <tr>
+                      <th>Пористость</th>
+                      <td>{stone.porosity}</td>
                     </tr>
                   )}
                   <tr>

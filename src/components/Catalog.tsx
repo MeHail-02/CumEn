@@ -7,7 +7,7 @@ interface CatalogProps {
 }
 
 type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит';
-type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый';
+type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
 
 export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
@@ -46,7 +46,11 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
 
     // Color filter
     if (selectedColor !== 'all') {
-      result = result.filter(s => s.color === selectedColor);
+      result = result.filter(s => 
+        Array.isArray(s.color)
+          ? s.color.includes(selectedColor as any)
+          : s.color === selectedColor
+      );
     }
 
     // Origin filter
@@ -62,7 +66,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'rarity') {
-      const rarityRank = { 'Коллекционный': 3, 'Эксклюзив': 2, 'Премиум': 1, 'Урал': 1 };
+      const rarityRank = { 'Коллекционный': 3, 'Эксклюзив': 2, 'Премиум': 1, 'Урал': 1, 'Карелия': 1 };
       result.sort((a, b) => (rarityRank[b.rarity] || 0) - (rarityRank[a.rarity] || 0));
     }
 
@@ -162,7 +166,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Оттенок</h3>
               <div className="filter-options color-options">
-                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый'] as ColorFilter[]).map(color => (
+                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый'] as ColorFilter[]).map(color => (
                   <button 
                     key={color}
                     className={`filter-btn color-btn ${selectedColor === color ? 'active' : ''}`}
@@ -285,7 +289,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Оттенок</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый'] as ColorFilter[]).map(color => (
+                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый'] as ColorFilter[]).map(color => (
                     <button 
                       key={color}
                       className={`drawer-option-btn ${selectedColor === color ? 'active' : ''}`}
@@ -572,6 +576,9 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
         .color-dot-синий { background-color: #1a365d; }
         .color-dot-бежевый { background-color: #f5f5dc; }
         .color-dot-серый { background-color: #8a8d91; }
+        .color-dot-коричневый { background-color: #8b4513; }
+        .color-dot-красный { background-color: #a52a2a; }
+        .color-dot-желтый { background-color: #ffd700; }
 
         .btn-clear-all {
           margin-top: 10px;
@@ -710,14 +717,20 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
         }
 
         .stone-name {
-          font-size: 1.25rem;
+          font-size: 1.2rem;
           color: #ffffff;
           margin-bottom: 16px;
           font-weight: 400;
           font-family: var(--font-serif);
-          white-space: nowrap;
+          white-space: normal;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          min-height: 2.6em;
+          line-height: 1.3;
+          word-break: break-word;
         }
 
         .card-footer {
