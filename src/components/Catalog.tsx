@@ -7,7 +7,7 @@ interface CatalogProps {
 }
 
 type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит';
-type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый';
+type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
 
 export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
@@ -162,7 +162,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Оттенок</h3>
               <div className="filter-options color-options">
-                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый'] as ColorFilter[]).map(color => (
+                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый'] as ColorFilter[]).map(color => (
                   <button 
                     key={color}
                     className={`filter-btn color-btn ${selectedColor === color ? 'active' : ''}`}
@@ -285,7 +285,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Оттенок</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый'] as ColorFilter[]).map(color => (
+                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый'] as ColorFilter[]).map(color => (
                     <button 
                       key={color}
                       className={`drawer-option-btn ${selectedColor === color ? 'active' : ''}`}
@@ -571,6 +571,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
         .color-dot-зеленый { background-color: #1b4d3e; }
         .color-dot-синий { background-color: #1a365d; }
         .color-dot-бежевый { background-color: #f5f5dc; }
+        .color-dot-серый { background-color: #8a8d91; }
 
         .btn-clear-all {
           margin-top: 10px;
