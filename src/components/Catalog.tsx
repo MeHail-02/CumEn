@@ -62,7 +62,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'rarity') {
-      const rarityRank = { 'Коллекционный': 3, 'Эксклюзив': 2, 'Премиум': 1 };
+      const rarityRank = { 'Коллекционный': 3, 'Эксклюзив': 2, 'Премиум': 1, 'Урал': 1 };
       result.sort((a, b) => (rarityRank[b.rarity] || 0) - (rarityRank[a.rarity] || 0));
     }
 
@@ -235,7 +235,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                       <h3 className="stone-name">{stone.name}</h3>
                       <div className="card-footer">
                         <span className="stone-price">
-                          {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
+                          {stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
                         </span>
                         <span className="card-view-details">Детали &rarr;</span>
                       </div>

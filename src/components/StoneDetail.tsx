@@ -132,17 +132,17 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
 
           {/* Details & Specs Column */}
           <div className="detail-info-col">
-            <span className="info-rarity">{stone.rarity} сорт &bull; {stone.origin}</span>
+            <span className="info-rarity">{stone.rarity === 'Урал' ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
             <h1 className="info-name">{stone.name}</h1>
             <p className="info-price">
-              {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
+              {stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
             </p>
 
             <p className="info-desc">{stone.description}</p>
 
             {/* Specifications Table */}
             <div className="specs-table-box">
-              <h3 className="specs-title">Характеристики слэба</h3>
+              <h3 className="specs-title">Характеристики</h3>
               <table className="specs-table">
                 <tbody>
                   <tr>
