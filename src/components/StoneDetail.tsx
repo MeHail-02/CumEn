@@ -177,6 +177,18 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                       <td>{stone.waterAbsorption}</td>
                     </tr>
                   )}
+                  {stone.frostResistance && (
+                    <tr>
+                      <th>Морозостойкость</th>
+                      <td>{stone.frostResistance}</td>
+                    </tr>
+                  )}
+                  {stone.abrasion && (
+                    <tr>
+                      <th>Истираемость</th>
+                      <td>{stone.abrasion}</td>
+                    </tr>
+                  )}
                   <tr>
                     <th>Статус наличия</th>
                     <td>
