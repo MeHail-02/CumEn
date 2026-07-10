@@ -127,7 +127,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                 <Minimize2 size={14} /> Наведите для увеличения
               </div>
             </div>
-            <p className="detail-image-sub">Натуральная текстура слэба. Фактический рисунок прожилок может отличаться.</p>
+            <p className="detail-image-sub">Натуральная текстура камня. Фактический рисунок прожилок может отличаться.</p>
           </div>
 
           {/* Details & Specs Column */}
@@ -154,7 +154,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                     <td>{stone.origin}</td>
                   </tr>
                   <tr>
-                    <th>Средний размер слэба</th>
+                    <th>Средний размер камня (плиты)</th>
                     <td>{stone.slabSize}</td>
                   </tr>
                   <tr>
@@ -293,7 +293,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
 
                 <div className="param-row-inputs">
                   <div className="param-group">
-                    <label>Толщина слэба</label>
+                    <label>Толщина камня (плиты)</label>
                     <select 
                       value={thickness} 
                       onChange={(e) => setThickness(e.target.value)}
@@ -370,7 +370,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                     <h4 className="lead-form-title">
                       <PhoneCall size={16} className="text-gold" /> Отправить расчет инженеру
                     </h4>
-                    <p className="lead-form-desc">Зафиксируйте стоимость этого камня. Мы перезвоним для уточнения размеров и пригласим вас на просмотр слэба.</p>
+                    <p className="lead-form-desc">Зафиксируйте стоимость этого камня. Мы перезвоним для уточнения размеров и пригласим вас на просмотр камня.</p>
                     
                     <input 
                       type="text" 

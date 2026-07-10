@@ -6,8 +6,8 @@ interface CatalogProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
 }
 
-type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит';
-type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый';
+type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'песчаник' | 'известняк';
+type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый' | 'розовый';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
 
 export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
@@ -66,7 +66,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'rarity') {
-      const rarityRank = { 'Коллекционный': 3, 'Эксклюзив': 2, 'Премиум': 1, 'Урал': 1, 'Карелия': 1 };
+      const rarityRank = { 'Коллекционный': 3, 'Импорт': 2, 'Урал': 1, 'Карелия': 1 };
       result.sort((a, b) => (rarityRank[b.rarity] || 0) - (rarityRank[a.rarity] || 0));
     }
 
@@ -94,9 +94,9 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
       <section className="catalog-header">
         <div className="container">
           <span className="catalog-tag">Материалы</span>
-          <h1 className="catalog-title">Галерея слэбов</h1>
+          <h1 className="catalog-title">Галерея камней</h1>
           <p className="catalog-subtitle">
-            Каждый слэб уникален. Рисунок вен, глубина цвета и прочность — созданные самой природой в течение миллионов лет.
+            Каждый камень уникален. Рисунок вен, глубина цвета и прочность — созданные самой природой в течение миллионов лет.
           </p>
         </div>
       </section>
@@ -151,7 +151,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Тип камня</h3>
               <div className="filter-options">
-                {(['all', 'мрамор', 'гранит', 'кварцит'] as StoneTypeFilter[]).map(type => (
+                {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
                   <button 
                     key={type}
                     className={`filter-btn ${selectedType === type ? 'active' : ''}`}
@@ -166,7 +166,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Оттенок</h3>
               <div className="filter-options color-options">
-                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый'] as ColorFilter[]).map(color => (
+                {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый', 'розовый'] as ColorFilter[]).map(color => (
                   <button 
                     key={color}
                     className={`filter-btn color-btn ${selectedColor === color ? 'active' : ''}`}
@@ -249,7 +249,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               </div>
             ) : (
               <div className="no-results">
-                <h3>Подходящие слэбы не найдены</h3>
+                <h3>Подходящие камни не найдены</h3>
                 <p>Попробуйте смягчить параметры фильтрации или сбросить их.</p>
                 <button className="btn-gold" onClick={clearFilters}>Сбросить всё</button>
               </div>
@@ -273,7 +273,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Тип камня</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'мрамор', 'гранит', 'кварцит'] as StoneTypeFilter[]).map(type => (
+                  {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
                     <button 
                       key={type}
                       className={`drawer-option-btn ${selectedType === type ? 'active' : ''}`}
@@ -289,7 +289,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Оттенок</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый'] as ColorFilter[]).map(color => (
+                  {(['all', 'белый', 'черный', 'зеленый', 'синий', 'бежевый', 'серый', 'коричневый', 'красный', 'желтый', 'розовый'] as ColorFilter[]).map(color => (
                     <button 
                       key={color}
                       className={`drawer-option-btn ${selectedColor === color ? 'active' : ''}`}
@@ -579,6 +579,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
         .color-dot-коричневый { background-color: #8b4513; }
         .color-dot-красный { background-color: #a52a2a; }
         .color-dot-желтый { background-color: #ffd700; }
+        .color-dot-розовый { background-color: #ffb7c5; }
 
         .btn-clear-all {
           margin-top: 10px;

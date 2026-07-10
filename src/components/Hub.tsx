@@ -41,19 +41,19 @@ const portfolioItems: PortfolioItem[] = [
   },
   {
     id: 2,
-    title: 'Облицовка камина слэбом Calacatta Gold',
+    title: 'Облицовка камина камнем Calacatta Gold',
     location: 'Пентхаус на Патриарших прудах',
     category: 'fireplaces',
     image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=800',
-    description: 'Каминный портал из цельного слэба итальянского мрамора. Симметричный подбор рисунка прожилок, жаропрочная клеевая сборка.'
+    description: 'Каминный портал из цельного камня итальянского мрамора. Симметричный подбор рисунка прожилок, жаропрочная клеевая сборка.'
   },
   {
     id: 3,
-    title: 'Ванная комната в едином слэбе Carrara',
+    title: 'Ванная комната в едином камне Carrara',
     location: 'ЖК Knightsbridge Private Park',
     category: 'walls',
     image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=800',
-    description: 'Облицовка стен ванной комнаты крупноформатными слэбами каррарского мрамора с идеальным совпадением текстурных швов.'
+    description: 'Облицовка стен ванной комнаты крупноформатным камнем каррарского мрамора с идеальным совпадением текстурных швов.'
   },
   {
     id: 4,
@@ -77,7 +77,7 @@ const portfolioItems: PortfolioItem[] = [
     location: 'Загородная резиденция, Барвиха',
     category: 'walls',
     image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80&w=800',
-    description: 'Зеркальное панно (Bookmatch) из четырех слэбов Calacatta в интерьере гостиной.'
+    description: 'Зеркальное панно (Bookmatch) из четырех камней Calacatta в интерьере гостиной.'
   }
 ];
 
@@ -156,12 +156,12 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           </h1>
           
           <p className="hero-description animate-fade-in-up">
-            AURA STONE — это синергия крупнейшей галереи редких пород натурального камня и передового камнеобрабатывающего завода. Мы поставляем слэбы напрямую с карьеров Италии, Бразилии и Испании и превращаем их в высокохудожественные элементы вашего интерьера.
+            AURA STONE — это синергия крупнейшей галереи редких пород натурального камня и передового камнеобрабатывающего завода. Мы поставляем камень напрямую с карьеров Италии, Бразилии и Испании и превращаем их в высокохудожественные элементы вашего интерьера.
           </p>
 
           <div className="hero-actions animate-fade-in-up">
             <button className="btn-gold-solid hero-btn" onClick={() => setView('catalog')}>
-              Исследовать галерею слэбов <ArrowRight size={16} />
+              Исследовать галерею камней <ArrowRight size={16} />
             </button>
             <button className="btn-gold hero-btn" onClick={() => setView('services')}>
               Наше производство
@@ -191,7 +191,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               <span className="gateway-tag">Склад в Москве</span>
               <h2 className="gateway-title">Галерея камня</h2>
               <p className="gateway-desc">
-                Коллекция из более чем 250 сортов мрамора, гранита, кварцита и оникса. Выберите свой слэб вживую или по каталогу.
+                Коллекция из более чем 250 сортов мрамора, гранита, кварцита и оникса. Выберите свой камень вживую или по каталогу.
               </p>
               <span className="gateway-btn">
                 Перейти в каталог <ArrowRight size={16} className="btn-arrow" />
@@ -248,7 +248,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                   <div className="stone-card-badge">{stone.rarity}</div>
                   <div className="stone-card-hover-overlay">
                     <span className="hover-view-btn">
-                      Посмотреть слэб <ArrowRight size={14} />
+                      Посмотреть камень <ArrowRight size={14} />
                     </span>
                   </div>
                 </div>
@@ -561,7 +561,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               </div>
               <h3 className="value-title">Технология Bookmatch</h3>
               <p className="value-desc">
-                Мы подбираем слэбы из одной партии ("бабочка") для создания масштабных настенных панно и полов с зеркально симметричным перетеканием прожилок камня.
+                Мы подбираем камни из одной партии ("бабочка") для создания масштабных настенных панно и полов с зеркально симметричным перетеканием прожилок камня.
               </p>
             </div>
           </div>
@@ -575,7 +575,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             <div className="metric-card">
               <div className="metric-num text-gold">250+</div>
               <div className="metric-label">Сортов камня на складе</div>
-              <p className="metric-desc">Собственный склад в Москве позволяет оперативно подобрать слэбы под проект</p>
+              <p className="metric-desc">Собственный склад в Москве позволяет оперативно подобрать камни под проект</p>
             </div>
 
             <div className="metric-card">
