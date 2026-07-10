@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ArrowRight, 
   Box, 
@@ -11,8 +12,7 @@ import {
   Flame,
   Droplets,
   UtensilsCrossed,
-  X,
-  MapPin
+  X
 } from 'lucide-react';
 import { stonesData } from '../data/stones';
 import type { Stone } from '../data/stones';
@@ -36,7 +36,7 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Кухонный остров из кварцита Calacatta',
     location: 'КП Миллениум Парк',
     category: 'countertops',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800',
+    image: '/23KGdEanRR2MznzETa_lzgaaDC-NB-nqxy3XqwfP_S-N5WGmmCZtMfkeB2Ml_p3DVxSG3-ODlpiACZvGndy2tujt.jpg',
     description: 'Массивный кухонный остров из элитного кварцита с перетеканием прожилок с горизонтальной плоскости на боковины. Лазерная ЧПУ-резка фасок.'
   },
   {
@@ -44,7 +44,7 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Облицовка камина камнем Calacatta Gold',
     location: 'Пентхаус на Патриарших прудах',
     category: 'fireplaces',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=800',
+    image: '/67duVkXQNG6hblROJ0SXlhXxeod1JvCP48C-JsnwtxvvtAYzkPXQ4WpPqCJQz_pevmqpJ2SbyWepO5P723I2AvoW.jpg',
     description: 'Каминный портал из цельного камня итальянского мрамора. Симметричный подбор рисунка прожилок, жаропрочная клеевая сборка.'
   },
   {
@@ -52,7 +52,7 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Ванная комната в едином камне Carrara',
     location: 'ЖК Knightsbridge Private Park',
     category: 'walls',
-    image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=800',
+    image: '/A6GOdjz6TX3_zN7hxqgbBlmVGGpIxjhpPF_ZqXknhoGk79GsqsqhRzT2JKzC3IRtUPv0PpDrJjgKHbDXYuKUMdDp.jpg',
     description: 'Облицовка стен ванной комнаты крупноформатным камнем каррарского мрамора с идеальным совпадением текстурных швов.'
   },
   {
@@ -60,7 +60,7 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Световое панно из оникса Emerald',
     location: 'Ресторан Luxury Terrace, Москва',
     category: 'walls',
-    image: 'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&q=80&w=800',
+    image: '/KobXvYSB_0la3CgZu5EJqciXouQ_0dj6LOppHDZvcNOPhmhfE8nG3ENPxZX2s9QLjfAJuox3P4XjZ2CIWqHrusJh.jpg',
     description: 'Декоративная стена из полупрозрачного зеленого оникса со встроенной светодиодной подсветкой теплого спектра.'
   },
   {
@@ -68,7 +68,7 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Ступени из гранита Absolute Black',
     location: 'Офис-центр на Якиманке',
     category: 'stairs',
-    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=800',
+    image: '/S2qiahutznH_yLGIu4pdpTe3807-lkHhtcp9hoczCuE0orM6ZOCGs7AvICuQDazX8UdbR3BKW-t1mdb2aVCl4Xm3.jpg',
     description: 'Износостойкая лестничная группа из черного индийского гранита. Термообработка поверхности для исключения скольжения.'
   },
   {
@@ -76,14 +76,37 @@ const portfolioItems: PortfolioItem[] = [
     title: 'Облицовка стен «бабочкой» из мрамора',
     location: 'Загородная резиденция, Барвиха',
     category: 'walls',
-    image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80&w=800',
+    image: '/Vb9oo3-T7VetACUO0tkcUBra62S4S1GINHGAREuRSN18Kqxp2tfkja3zC0irFUmgnhmNHPsVuMwoyWoeOV4L8VRm.jpg',
     description: 'Зеркальное панно (Bookmatch) из четырех камней Calacatta в интерьере гостиной.'
+  },
+  {
+    id: 7,
+    title: 'Кухонный остров из кварцита Patagonia',
+    location: 'Коттеджный поселок Барвиха',
+    category: 'countertops',
+    image: '/XLMfG88_lma97yZEApZ6CQs2lmzJGt0atTmzkpbnTh2AsAkYygJ1uN0KZyqb44PwbUj9y-Ek9gzoQmIeYEwowZLs.jpg',
+    description: 'Эксклюзивный кухонный остров из натурального кварцита Patagonia с выразительной текстурой.'
+  },
+  {
+    id: 8,
+    title: 'Каминный зал с облицовкой Calacatta Gold',
+    location: 'Пентхаус на Патриарших прудах',
+    category: 'fireplaces',
+    image: '/Xu7IjVfSZDiciekfaFKI_tTy_WJyH4oifiRoRb_Vae00ROrJj2dV85WhQrX2Lnab6oveSEXD2jl7-hmFeNPYE06l.jpg',
+    description: 'Облицовка стен и портала камина премиальным мрамором Calacatta Gold с симметричной раскладкой рисунка.'
+  },
+  {
+    id: 9,
+    title: 'Ванная комната в едином камне Carrara White',
+    location: 'ЖК Knightsbridge Private Park',
+    category: 'walls',
+    image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
+    description: 'Роскошная отделка ванной комнаты плитами из белого каррарского мрамора.'
   }
 ];
 
 export const Hub: React.FC<HubProps> = ({ setView }) => {
   // Portfolio states
-  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [lightboxProject, setLightboxProject] = useState<PortfolioItem | null>(null);
 
   // Quiz states
@@ -419,110 +442,32 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             <div className="accent-line" />
           </div>
 
-          {/* Category tabs */}
-          <div className="portfolio-tabs">
-            <button 
-              className={`portfolio-tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveCategory('all')}
-            >
-              Все работы
-            </button>
-            <button 
-              className={`portfolio-tab-btn ${activeCategory === 'countertops' ? 'active' : ''}`}
-              onClick={() => setActiveCategory('countertops')}
-            >
-              Столешницы & Острова
-            </button>
-            <button 
-              className={`portfolio-tab-btn ${activeCategory === 'fireplaces' ? 'active' : ''}`}
-              onClick={() => setActiveCategory('fireplaces')}
-            >
-              Камины & Порталы
-            </button>
-            <button 
-              className={`portfolio-tab-btn ${activeCategory === 'walls' ? 'active' : ''}`}
-              onClick={() => setActiveCategory('walls')}
-            >
-              Стены & Панно
-            </button>
-            <button 
-              className={`portfolio-tab-btn ${activeCategory === 'stairs' ? 'active' : ''}`}
-              onClick={() => setActiveCategory('stairs')}
-            >
-              Лестницы & Ступени
-            </button>
-          </div>
-
           {/* Grid gallery - Uniform Aspect Ratio, NO GAPS */}
           <div className="masonry-gallery">
-            {portfolioItems
-              .filter(item => activeCategory === 'all' || item.category === activeCategory)
-              .map(item => (
-                <div 
-                  key={item.id} 
-                  className="masonry-gallery-item"
-                  onClick={() => setLightboxProject(item)}
-                >
-                  <img src={item.image} alt={item.title} className="masonry-image" />
-                  <div className="masonry-overlay">
-                    <div className="masonry-overlay-content">
-                      <span className="masonry-location">{item.location}</span>
-                      <h4 className="masonry-title">{item.title}</h4>
-                      <span className="masonry-more-link">Смотреть проект →</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {portfolioItems.map(item => (
+              <div 
+                key={item.id} 
+                className="masonry-gallery-item"
+                onClick={() => setLightboxProject(item)}
+              >
+                <img src={item.image} alt={item.title} className="masonry-image" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Lightbox Modal Popup */}
-      {lightboxProject && (
+      {lightboxProject && createPortal(
         <div className="portfolio-lightbox" onClick={() => setLightboxProject(null)}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+          <div className="lightbox-content-image-only" onClick={(e) => e.stopPropagation()}>
             <button className="lightbox-close-btn" onClick={() => setLightboxProject(null)}>
-              <X size={24} />
+              <X size={20} />
             </button>
-            <div className="lightbox-grid">
-              <div className="lightbox-image-wrapper">
-                <img src={lightboxProject.image} alt={lightboxProject.title} />
-              </div>
-              <div className="lightbox-details-wrapper">
-                <span className="lightbox-category-tag">
-                  {lightboxProject.category === 'countertops' && 'Столешницы & Острова'}
-                  {lightboxProject.category === 'fireplaces' && 'Камины & Порталы'}
-                  {lightboxProject.category === 'walls' && 'Стены & Панно'}
-                  {lightboxProject.category === 'stairs' && 'Лестницы & Ступени'}
-                </span>
-                <h3 className="lightbox-project-title">{lightboxProject.title}</h3>
-                
-                <div className="lightbox-meta-item">
-                  <MapPin size={16} className="lightbox-meta-icon" />
-                  <span>{lightboxProject.location}</span>
-                </div>
-
-                <div className="lightbox-divider" />
-                
-                <h4 className="lightbox-section-subtitle">Описание проекта</h4>
-                <p className="lightbox-project-desc">{lightboxProject.description}</p>
-                
-                <button 
-                  className="btn-gold-solid lightbox-cta-btn" 
-                  onClick={() => {
-                    setLightboxProject(null);
-                    setView('services');
-                    setTimeout(() => {
-                      document.getElementById('service-form')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }}
-                >
-                  Хочу похожий проект
-                </button>
-              </div>
-            </div>
+            <img src={lightboxProject.image} alt={lightboxProject.title} className="lightbox-only-image" />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Values / Philosophy Section */}
@@ -1670,21 +1615,39 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           animation: fadeInOnly 0.3s ease-out;
         }
 
-        .lightbox-content {
+        .lightbox-content-image-only {
           position: relative;
-          background-color: var(--color-bg-card-dark);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          width: 100%;
-          max-width: 950px;
-          box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+          max-width: 90vw;
+          max-height: 90vh;
+          box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background-color: #0b0c0d;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           overflow: hidden;
+        }
+
+        .lightbox-only-image {
+          max-width: 100%;
+          max-height: 90vh;
+          object-fit: contain;
+          display: block;
         }
 
         .lightbox-close-btn {
           position: absolute;
-          top: 20px;
-          right: 20px;
-          color: rgba(255, 255, 255, 0.6);
+          top: 15px;
+          right: 15px;
+          color: rgba(255, 255, 255, 0.8);
+          background-color: rgba(11, 12, 13, 0.5);
+          border: none;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
           transition: var(--transition-fast);
           z-index: 10;
@@ -1692,109 +1655,8 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
 
         .lightbox-close-btn:hover {
           color: #ffffff;
-          transform: scale(1.1);
-        }
-
-        .lightbox-grid {
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-        }
-
-        @media (max-width: 768px) {
-          .lightbox-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .lightbox-image-wrapper {
-          width: 100%;
-          aspect-ratio: 4 / 3;
-          background-color: #0b0c0d;
-          overflow: hidden;
-        }
-
-        @media (max-width: 768px) {
-          .lightbox-image-wrapper {
-            aspect-ratio: 16 / 10;
-          }
-        }
-
-        .lightbox-image-wrapper img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .lightbox-details-wrapper {
-          padding: 40px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        @media (max-width: 768px) {
-          .lightbox-details-wrapper {
-            padding: 30px 20px;
-          }
-        }
-
-        .lightbox-category-tag {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-accent-gold);
-          font-weight: 500;
-          margin-bottom: 12px;
-          display: block;
-        }
-
-        .lightbox-project-title {
-          font-size: 1.8rem;
-          color: #ffffff;
-          margin-bottom: 15px;
-          line-height: 1.2;
-        }
-
-        .lightbox-meta-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: var(--color-text-dark-muted);
-          font-size: 0.85rem;
-          margin-bottom: 24px;
-        }
-
-        .lightbox-meta-icon {
-          color: var(--color-accent-gold);
-        }
-
-        .lightbox-divider {
-          height: 1px;
-          background-color: rgba(255, 255, 255, 0.06);
-          margin-bottom: 24px;
-        }
-
-        .lightbox-section-subtitle {
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: var(--color-text-dark-muted);
-          margin-bottom: 10px;
-          font-weight: 500;
-        }
-
-        .lightbox-project-desc {
-          font-size: 0.88rem;
-          line-height: 1.6;
-          color: var(--color-text-dark-muted);
-          margin-bottom: 30px;
-          font-weight: 300;
-        }
-
-        .lightbox-cta-btn {
-          align-self: flex-start;
-          padding: 12px 24px;
-          font-size: 0.8rem;
+          background-color: rgba(11, 12, 13, 0.8);
+          transform: scale(1.05);
         }
 
         /* Keyframes Animations */

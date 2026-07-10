@@ -76,7 +76,7 @@ export const portfolioData: PortfolioItem[] = [
     id: 'p1',
     title: 'Кухонный остров из кварцита Patagonia',
     serviceId: 'countertops',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800',
+    image: '/XLMfG88_lma97yZEApZ6CQs2lmzJGt0atTmzkpbnTh2AsAkYygJ1uN0KZyqb44PwbUj9y-Ek9gzoQmIeYEwowZLs.jpg',
     location: 'Коттеджный поселок Барвиха',
     stoneUsed: 'Кварцит Patagonia (Бразилия)'
   },
@@ -84,7 +84,7 @@ export const portfolioData: PortfolioItem[] = [
     id: 'p2',
     title: 'Каминный зал с облицовкой Calacatta Gold',
     serviceId: 'fireplaces',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=800',
+    image: '/Xu7IjVfSZDiciekfaFKI_tTy_WJyH4oifiRoRb_Vae00ROrJj2dV85WhQrX2Lnab6oveSEXD2jl7-hmFeNPYE06l.jpg',
     location: 'Пентхаус на Патриарших прудах',
     stoneUsed: 'Мрамор Calacatta Gold (Италия)'
   },
@@ -92,7 +92,7 @@ export const portfolioData: PortfolioItem[] = [
     id: 'p3',
     title: 'Ванная комната в едином камне Carrara White',
     serviceId: 'installation',
-    image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=800',
+    image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
     location: 'ЖК Knightsbridge Private Park',
     stoneUsed: 'Мрамор Carrara White (Италия)'
   },
@@ -100,7 +100,7 @@ export const portfolioData: PortfolioItem[] = [
     id: 'p4',
     title: 'Минималистичная столешница в ванную комнату',
     serviceId: 'countertops',
-    image: 'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=800',
+    image: '/23KGdEanRR2MznzETa_lzgaaDC-NB-nqxy3XqwfP_S-N5WGmmCZtMfkeB2Ml_p3DVxSG3-ODlpiACZvGndy2tujt.jpg',
     location: 'Апартаменты в Сити',
     stoneUsed: 'Кварцит Taj Mahal'
   }
