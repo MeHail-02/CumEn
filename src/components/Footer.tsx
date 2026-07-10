@@ -11,6 +11,19 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleCalculationClick = () => {
+    const calculator = document.getElementById('callback-form');
+    if (calculator) {
+      calculator.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    setView('services', null);
+    setTimeout(() => {
+      document.getElementById('service-form')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
   return (
     <footer className="footer">
       <div className="container footer-grid">
@@ -46,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
             <li><button onClick={() => handleNavClick('hub')}>Главная хаб</button></li>
             <li><button onClick={() => handleNavClick('catalog')}>Каталог камня</button></li>
             <li><button onClick={() => handleNavClick('services')}>Услуги и производство</button></li>
-            <li><a href="#callback-form">Рассчитать стоимость</a></li>
+            <li><button onClick={handleCalculationClick}>Рассчитать стоимость</button></li>
           </ul>
         </div>
 
@@ -95,9 +108,9 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
         <div className="container footer-bottom-flex">
           <p className="copyright">&copy; {new Date().getFullYear()} AURA STONE. Все права защищены.</p>
           <div className="legal-links">
-            <a href="#">Политика конфиденциальности</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Политика конфиденциальности</a>
             <span className="divider">|</span>
-            <a href="#">Согласие на обработку персональных данных</a>
+            <a href="#" onClick={(e) => e.preventDefault()}>Согласие на обработку персональных данных</a>
           </div>
         </div>
       </div>

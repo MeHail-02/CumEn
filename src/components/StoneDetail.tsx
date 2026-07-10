@@ -76,7 +76,23 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
     'ogee': 5000
   };
 
-  const calculatedStoneCost = area * stonePrice * baseProductMultipliers[productType];
+  const thicknessInMillimeters = Number(thickness.match(/[\d,.]+/)?.[0].replace(',', '.')) || 20;
+  const thicknessMultiplier = Math.max(1, thicknessInMillimeters / 20);
+  const finishingMultiplier = /бучард/i.test(finishing)
+    ? 1.18
+    : /кож/i.test(finishing)
+      ? 1.12
+      : /термо|песк/i.test(finishing)
+        ? 1.1
+        : /лощ|шлиф/i.test(finishing)
+          ? 1.05
+          : 1;
+
+  const calculatedStoneCost = area
+    * stonePrice
+    * baseProductMultipliers[productType]
+    * thicknessMultiplier
+    * finishingMultiplier;
   const calculatedEdgeCost = perimeter * edgeProfilePrices[edgeProfile];
   const installationCost = area * 5000 + 4000; // base install fee
   
@@ -363,7 +379,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                   <p className="price-details-footnote">
                     {stone.price === 0 
                       ? '*Расчет стоимости изделия производится индивидуально по запросу.'
-                      : `*Включает: раскрой материала (${area.toFixed(2)} м²), полировку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
+                      : `*Включает: материал ${thickness} (${area.toFixed(2)} м²), обработку «${finishing}», обработку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
                   </p>
                 </div>
 

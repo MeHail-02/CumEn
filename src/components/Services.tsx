@@ -98,12 +98,16 @@ const workflowSteps = [
   }
 ];
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const ALLOWED_FILE_EXTENSIONS = new Set(['pdf', 'dwg', 'jpg', 'jpeg', 'png']);
+
 export const Services: React.FC = () => {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   
   // Drag & drop state
   const [isDragOver, setIsDragOver] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
   
   // Lead state
   const [name, setName] = useState('');
@@ -138,19 +142,42 @@ export const Services: React.FC = () => {
     setIsDragOver(false);
   };
 
+  const addFiles = (newFiles: File[]) => {
+    const acceptedFiles: File[] = [];
+    const errors: string[] = [];
+
+    newFiles.forEach(file => {
+      const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+
+      if (!ALLOWED_FILE_EXTENSIONS.has(extension)) {
+        errors.push(`${file.name}: неподдерживаемый формат.`);
+      } else if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name}: размер превышает 50 МБ.`);
+      } else {
+        acceptedFiles.push(file);
+      }
+    });
+
+    if (acceptedFiles.length > 0) {
+      setFiles(prev => [...prev, ...acceptedFiles]);
+    }
+    setFileErrors(errors);
+  };
+
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
     if (e.dataTransfer.files) {
       const droppedFiles = Array.from(e.dataTransfer.files);
-      setFiles(prev => [...prev, ...droppedFiles]);
+      addFiles(droppedFiles);
     }
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const chosenFiles = Array.from(e.target.files);
-      setFiles(prev => [...prev, ...chosenFiles]);
+      addFiles(chosenFiles);
+      e.target.value = '';
     }
   };
 
@@ -394,9 +421,16 @@ export const Services: React.FC = () => {
                         ref={fileInputRef} 
                         style={{ display: 'none' }} 
                         onChange={handleFileChange}
+                        accept=".pdf,.dwg,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                         multiple
                       />
                     </div>
+
+                    {fileErrors.length > 0 && (
+                      <div className="file-errors" role="alert">
+                        {fileErrors.map((error, index) => <p key={`${error}-${index}`}>{error}</p>)}
+                      </div>
+                    )}
 
                     {/* Files List Preview */}
                     {files.length > 0 && (
@@ -1004,6 +1038,13 @@ export const Services: React.FC = () => {
         .upload-sub {
           font-size: 0.7rem;
           color: var(--color-text-dark-muted);
+        }
+
+        .file-errors {
+          margin-top: 10px;
+          color: #e7a1a1;
+          font-size: 0.75rem;
+          line-height: 1.5;
         }
 
         /* Attached files list */
