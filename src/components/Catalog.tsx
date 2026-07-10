@@ -60,9 +60,17 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
 
     // Sort
     if (sortBy === 'price-asc') {
-      result.sort((a, b) => a.price - b.price);
+      result.sort((a, b) => {
+        if (a.price === 0) return b.price === 0 ? 0 : 1;
+        if (b.price === 0) return -1;
+        return a.price - b.price;
+      });
     } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => b.price - a.price);
+      result.sort((a, b) => {
+        if (a.price === 0) return b.price === 0 ? 0 : 1;
+        if (b.price === 0) return -1;
+        return b.price - a.price;
+      });
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'rarity') {

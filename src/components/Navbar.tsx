@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                 // If not on a page with form, redirect to services where the form is
                 setView('services');
                 setTimeout(() => {
-                  document.getElementById('callback-form')?.scrollIntoView({ behavior: 'smooth' });
+                  document.getElementById('service-form')?.scrollIntoView({ behavior: 'smooth' });
                 }, 100);
               }
             }}
