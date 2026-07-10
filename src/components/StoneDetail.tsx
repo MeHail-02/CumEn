@@ -135,7 +135,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
             <span className="info-rarity">{(stone.rarity === 'Урал' || stone.rarity === 'Карелия') ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
             <h1 className="info-name">{stone.name}</h1>
             <p className="info-price">
-              {stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span>
+              {stone.price === 0 ? 'цена по запросу' : <>{stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
             </p>
 
             <p className="info-desc">{stone.description}</p>
@@ -358,10 +358,12 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                 <div className="price-display-box">
                   <span className="price-label">Предварительный расчет изделия:</span>
                   <div className="price-number">
-                    {totalCost.toLocaleString('ru-RU')} <span className="currency">₽</span>
+                    {stone.price === 0 ? 'по запросу' : <>{totalCost.toLocaleString('ru-RU')} <span className="currency">₽</span></>}
                   </div>
                   <p className="price-details-footnote">
-                    *Включает: раскрой материала ({area.toFixed(2)} м²), полировку торцов ({perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.
+                    {stone.price === 0 
+                      ? '*Расчет стоимости изделия производится индивидуально по запросу.'
+                      : `*Включает: раскрой материала (${area.toFixed(2)} м²), полировку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
                   </p>
                 </div>
 

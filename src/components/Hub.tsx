@@ -94,7 +94,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
 
   // Featured stones subset
   const featuredStones = stonesData.filter(s => 
-    ['calacatta-gold', 'patagonia-quartzite', 'blue-bahia', 'emerald-green'].includes(s.id)
+    ['absolute-black', 'koelga-marble', 'volga-blue-granite', 'granatovy-amfibolit-granite'].includes(s.id)
   );
 
   const startQuizAgain = () => {
@@ -114,24 +114,24 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
     
     // Determine matched stone
     const uCase = quizUseCase || 'countertop';
-    let matchedId = 'calacatta-gold';
+    let matchedId = 'koelga-marble';
 
     if (uCase === 'countertop') {
-      if (vibe === 'light') matchedId = 'taj-mahal';
+      if (vibe === 'light') matchedId = 'koelga-marble';
       else if (vibe === 'dark') matchedId = 'absolute-black';
-      else matchedId = 'patagonia-quartzite';
+      else matchedId = 'volga-blue-granite';
     } else if (uCase === 'wall') {
-      if (vibe === 'light') matchedId = 'calacatta-gold';
-      else if (vibe === 'dark') matchedId = 'nero-marquina';
-      else matchedId = 'patagonia-quartzite';
+      if (vibe === 'light') matchedId = 'polotsky-marble';
+      else if (vibe === 'dark') matchedId = 'gabbro-kupetsky-granite';
+      else matchedId = 'granatovy-amfibolit-granite';
     } else if (uCase === 'fireplace') {
-      if (vibe === 'light') matchedId = 'calacatta-gold';
-      else if (vibe === 'dark') matchedId = 'nero-marquina';
-      else matchedId = 'blue-bahia';
+      if (vibe === 'light') matchedId = 'koelga-marble';
+      else if (vibe === 'dark') matchedId = 'gabbro-diabase-granite';
+      else matchedId = 'ala-noskua-granite';
     } else if (uCase === 'bathroom') {
-      if (vibe === 'light') matchedId = 'carrara-white';
-      else if (vibe === 'dark') matchedId = 'nero-marquina';
-      else matchedId = 'emerald-green';
+      if (vibe === 'light') matchedId = 'polotsky-marble';
+      else if (vibe === 'dark') matchedId = 'absolute-black';
+      else matchedId = 'zheltau-5-granite';
     }
 
     const found = stonesData.find(s => s.id === matchedId) || stonesData[0];
@@ -184,7 +184,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           <div className="gateway-card" onClick={() => setView('catalog')}>
             <div 
               className="gateway-bg" 
-              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&q=80&w=1200)' }}
+              style={{ backgroundImage: 'url(/gateway-gallery.jpg)' }}
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
@@ -204,7 +204,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           <div className="gateway-card" onClick={() => setView('services')}>
             <div 
               className="gateway-bg" 
-              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=1200)' }}
+              style={{ backgroundImage: 'url(/gateway-production.jpg)' }}
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
@@ -623,7 +623,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           padding-bottom: 100px;
           background: radial-gradient(circle at 80% 20%, rgba(197, 168, 128, 0.08) 0%, rgba(15, 16, 18, 0) 60%),
                       linear-gradient(180deg, rgba(15, 16, 18, 0.4) 0%, rgba(15, 16, 18, 0.95) 100%),
-                      url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1800');
+                      url('/hero-bg.jpg');
           background-size: cover;
           background-position: center;
           overflow: hidden;

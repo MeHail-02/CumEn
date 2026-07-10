@@ -454,7 +454,7 @@ export const Services: React.FC = () => {
           position: relative;
           padding: 140px 0 100px;
           background: linear-gradient(to bottom, rgba(15, 16, 18, 0.95), rgba(15, 16, 18, 0.7)), 
-                      url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200');
+                      url('/services-hero.jpg');
           background-size: cover;
           background-position: center;
           text-align: center;
