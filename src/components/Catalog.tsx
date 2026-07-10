@@ -239,7 +239,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                       <h3 className="stone-name">{stone.name}</h3>
                       <div className="card-footer">
                         <span className="stone-price">
-                          {stone.price === 0 ? 'цена по запросу' : <>{stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
+                          {stone.price === 0 ? 'цена по запросу' : <>от {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
                         </span>
                         <span className="card-view-details">Детали &rarr;</span>
                       </div>

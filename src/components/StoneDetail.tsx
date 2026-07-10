@@ -135,7 +135,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
             <span className="info-rarity">{(stone.rarity === 'Урал' || stone.rarity === 'Карелия') ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
             <h1 className="info-name">{stone.name}</h1>
             <p className="info-price">
-              {stone.price === 0 ? 'цена по запросу' : <>{stone.isPriceFrom && 'от '}{stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
+              {stone.price === 0 ? 'цена по запросу' : <>от {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
             </p>
 
             <p className="info-desc">{stone.description}</p>
