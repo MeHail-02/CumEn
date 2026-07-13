@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, X, ArrowUpDown } from 'lucide-react';
-import { stonesData } from '../data/stones';
+import { stonesData } from '../data/catalog';
 
 interface CatalogProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
@@ -9,6 +9,7 @@ interface CatalogProps {
 type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'песчаник' | 'известняк';
 type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый' | 'розовый';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
+const CATALOG_PAGE_SIZE = 24;
 
 export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
   const [search, setSearch] = useState('');
@@ -16,6 +17,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
   const [selectedColor, setSelectedColor] = useState<ColorFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(CATALOG_PAGE_SIZE);
 
   // Extract unique origins for filter option if needed (or keep it simple with type/color)
   const origins = useMemo(() => {
@@ -74,12 +76,18 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'rarity') {
-      const rarityRank = { 'Коллекционный': 3, 'Импорт': 2, 'Урал': 1, 'Карелия': 1 };
+      const rarityRank = { 'Коллекционный': 3, 'Импорт': 2, 'Урал': 1, 'Карелия': 1, 'Россия': 1 };
       result.sort((a, b) => (rarityRank[b.rarity] || 0) - (rarityRank[a.rarity] || 0));
     }
 
     return result;
   }, [search, selectedType, selectedColor, selectedOrigin, sortBy]);
+
+  useEffect(() => {
+    setVisibleCount(CATALOG_PAGE_SIZE);
+  }, [search, selectedType, selectedColor, selectedOrigin, sortBy]);
+
+  const visibleStones = filteredStones.slice(0, visibleCount);
 
   const handleCardClick = (stoneId: string) => {
     setView('detail', stoneId);
@@ -143,7 +151,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="sort-select"
               >
-                <option value="default">Сортировка: По умолчанию</option>
+                <option value="default">По умолчанию</option>
                 <option value="price-asc">Цена: по возрастанию</option>
                 <option value="price-desc">Цена: по убыванию</option>
                 <option value="name-asc">Название: А - Я</option>
@@ -217,15 +225,15 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
 
           {/* Catalog Grid */}
           <main className="catalog-grid-container">
-            {isFiltered && (
-              <div className="active-filters-row">
-                <span className="results-count">Найдено позиций: {filteredStones.length}</span>
-              </div>
-            )}
+            <div className="active-filters-row">
+              <span className="results-count">
+                {isFiltered ? 'Найдено' : 'В каталоге'} позиций: {filteredStones.length}
+              </span>
+            </div>
 
             {filteredStones.length > 0 ? (
               <div className="stone-grid">
-                {filteredStones.map(stone => (
+                {visibleStones.map(stone => (
                   <article 
                     key={stone.id} 
                     className="stone-card"
@@ -260,6 +268,21 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                 <h3>Подходящие камни не найдены</h3>
                 <p>Попробуйте смягчить параметры фильтрации или сбросить их.</p>
                 <button className="btn-gold" onClick={clearFilters}>Сбросить всё</button>
+              </div>
+            )}
+
+            {visibleCount < filteredStones.length && (
+              <div className="load-more-row">
+                <button
+                  type="button"
+                  className="btn-gold"
+                  onClick={() => setVisibleCount((count) => count + CATALOG_PAGE_SIZE)}
+                >
+                  Показать ещё
+                  <span className="load-more-count">
+                    {Math.min(CATALOG_PAGE_SIZE, filteredStones.length - visibleCount)} позиций
+                  </span>
+                </button>
               </div>
             )}
           </main>
@@ -493,6 +516,31 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
           outline: none;
           cursor: pointer;
           height: 100%;
+          min-width: 0;
+        }
+
+        @media (max-width: 600px) {
+          .toolbar-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+            gap: 10px;
+          }
+
+          .mobile-filter-btn,
+          .sort-dropdown-container {
+            min-width: 0;
+            padding-right: 10px;
+            padding-left: 10px;
+          }
+
+          .sort-icon {
+            flex: 0 0 auto;
+            margin-right: 6px;
+          }
+
+          .sort-select {
+            width: 100%;
+          }
         }
 
         .sort-select option {
@@ -628,6 +676,22 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
           gap: 30px;
         }
 
+        .load-more-row {
+          display: flex;
+          justify-content: center;
+          padding-top: 24px;
+        }
+
+        .load-more-row .btn-gold {
+          gap: 12px;
+        }
+
+        .load-more-count {
+          font-size: 0.68rem;
+          letter-spacing: 0.05em;
+          opacity: 0.72;
+        }
+
         /* Stone Card */
         .stone-card {
           background-color: var(--color-bg-card-dark);
@@ -699,6 +763,8 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
           letter-spacing: 0.05em;
           font-weight: 500;
           background-color: rgba(0, 0, 0, 0.6);
+          max-width: 62%;
+          text-align: right;
         }
 
         .stock-badge.in-stock {

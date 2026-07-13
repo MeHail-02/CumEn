@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, MapPin, Phone, Clock } from 'lucide-react';
+import { Building2, FileText, MapPin, Phone } from 'lucide-react';
 
 interface FooterProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
@@ -30,26 +30,12 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
         {/* Brand Info */}
         <div className="footer-col brand-col">
           <div className="footer-logo" onClick={() => handleNavClick('hub')}>
-            <span className="logo-title">AURA</span>
+            <span className="logo-title">ATLAS</span>
             <span className="logo-subtitle">STONE</span>
           </div>
           <p className="brand-desc">
-            Галерея природного камня и высокотехнологичное производство изделий. Мы создаем шедевры из мрамора, гранита и кварцита для эксклюзивных интерьеров.
+            Натуральный камень и изделия по индивидуальным размерам. Подбираем материал под задачу, выполняем обработку и сопровождаем проект до монтажа.
           </p>
-          <div className="social-links">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="Instagram">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="Facebook">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-              </svg>
-            </a>
-          </div>
         </div>
 
         {/* Navigation */}
@@ -69,19 +55,19 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
           <ul className="contact-list">
             <li>
               <Phone size={14} className="contact-icon" />
-              <a href="tel:+74950000000">+7 (495) 000-00-00</a>
-            </li>
-            <li>
-              <Mail size={14} className="contact-icon" />
-              <a href="mailto:info@aurastone.ru">info@aurastone.ru</a>
+              <a href="tel:+79166411774">+7 (916) 641-17-74</a>
             </li>
             <li>
               <MapPin size={14} className="contact-icon" />
-              <span>Москва, Кутузовский проспект, 12</span>
+              <span>429120, Чувашская Республика — Чувашия, г. Шумерля, ул. Ломоносова, д. 60, к. 1, кв. 17</span>
             </li>
             <li>
-              <Clock size={14} className="contact-icon" />
-              <span>Пн-Вс: 09:00 — 21:00</span>
+              <Building2 size={14} className="contact-icon" />
+              <span>ООО «Атлас Стоун»</span>
+            </li>
+            <li>
+              <FileText size={14} className="contact-icon" />
+              <span>ИНН 2100021618 · ОГРН 1242100008677</span>
             </li>
           </ul>
         </div>
@@ -106,7 +92,7 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
 
       <div className="footer-bottom">
         <div className="container footer-bottom-flex">
-          <p className="copyright">&copy; {new Date().getFullYear()} AURA STONE. Все права защищены.</p>
+          <p className="copyright">&copy; {new Date().getFullYear()} ООО «Атлас Стоун». Все права защищены.</p>
           <div className="legal-links">
             <a href="#" onClick={(e) => e.preventDefault()}>Политика конфиденциальности</a>
             <span className="divider">|</span>
