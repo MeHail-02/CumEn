@@ -54,9 +54,9 @@ export const servicesData: Service[] = [
     description: 'Установка готовых изделий на объекте любой сложности. Монтаж крупноформатных стеновых панелей (панно) с подсветкой, укладка полов, монтаж лестниц. Собственная бригада такелажников со специализированным оборудованием.',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800',
     features: [
-      'Собственный автопарк со специальными пирамидами для плит (камня)',
-      'Монтаж без пыли и грязи на объекте',
-      'Гарантия на монтажные работы 5 лет',
+      'Бережная перевозка готовых изделий',
+      'Аккуратный монтаж на объекте',
+      'Согласование состава монтажных работ',
       'Финишная полировка и кристаллизация швов на месте'
     ]
   }
@@ -77,7 +77,7 @@ export const portfolioData: PortfolioItem[] = [
     title: 'Кухонный остров из кварцита Patagonia',
     serviceId: 'countertops',
     image: '/XLMfG88_lma97yZEApZ6CQs2lmzJGt0atTmzkpbnTh2AsAkYygJ1uN0KZyqb44PwbUj9y-Ek9gzoQmIeYEwowZLs.jpg',
-    location: 'Коттеджный поселок Барвиха',
+    location: 'Кухня частного дома',
     stoneUsed: 'Кварцит Patagonia (Бразилия)'
   },
   {
@@ -85,7 +85,7 @@ export const portfolioData: PortfolioItem[] = [
     title: 'Каминный зал с облицовкой Calacatta Gold',
     serviceId: 'fireplaces',
     image: '/Xu7IjVfSZDiciekfaFKI_tTy_WJyH4oifiRoRb_Vae00ROrJj2dV85WhQrX2Lnab6oveSEXD2jl7-hmFeNPYE06l.jpg',
-    location: 'Пентхаус на Патриарших прудах',
+    location: 'Каминная зона',
     stoneUsed: 'Мрамор Calacatta Gold (Италия)'
   },
   {
@@ -93,7 +93,7 @@ export const portfolioData: PortfolioItem[] = [
     title: 'Ванная комната в едином камне Carrara White',
     serviceId: 'installation',
     image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
-    location: 'ЖК Knightsbridge Private Park',
+    location: 'Ванная комната',
     stoneUsed: 'Мрамор Carrara White (Италия)'
   },
   {
@@ -101,7 +101,7 @@ export const portfolioData: PortfolioItem[] = [
     title: 'Минималистичная столешница в ванную комнату',
     serviceId: 'countertops',
     image: '/23KGdEanRR2MznzETa_lzgaaDC-NB-nqxy3XqwfP_S-N5WGmmCZtMfkeB2Ml_p3DVxSG3-ODlpiACZvGndy2tujt.jpg',
-    location: 'Апартаменты в Сити',
+    location: 'Современный интерьер',
     stoneUsed: 'Кварцит Taj Mahal'
   }
 ];

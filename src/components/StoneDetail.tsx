@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import type { MouseEvent } from 'react';
 import { ArrowLeft, Check, Minimize2, Settings, PhoneCall } from 'lucide-react';
-import { stonesData } from '../data/stones';
+import { stonesData } from '../data/catalog';
 
 interface StoneDetailProps {
   stoneId: string;
@@ -143,12 +143,11 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                 <Minimize2 size={14} /> Наведите для увеличения
               </div>
             </div>
-            <p className="detail-image-sub">Натуральная текстура камня. Фактический рисунок прожилок может отличаться.</p>
           </div>
 
           {/* Details & Specs Column */}
           <div className="detail-info-col">
-            <span className="info-rarity">{(stone.rarity === 'Урал' || stone.rarity === 'Карелия') ? stone.rarity : `${stone.rarity} сорт`} &bull; {stone.origin}</span>
+            <span className="info-rarity">{(stone.rarity === 'Импорт' || stone.rarity === 'Коллекционный') ? `${stone.rarity} сорт` : stone.rarity} &bull; {stone.origin}</span>
             <h1 className="info-name">{stone.name}</h1>
             <p className="info-price">
               {stone.price === 0 ? 'цена по запросу' : <>от {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}

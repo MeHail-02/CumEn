@@ -13,7 +13,8 @@ export interface Stone {
   finishing: string[];
   inStock: boolean;
   slabSize: string;
-  rarity: 'Импорт' | 'Коллекционный' | 'Урал' | 'Карелия';
+  rarity: 'Импорт' | 'Коллекционный' | 'Урал' | 'Карелия' | 'Россия';
+  sourceUrl?: string;
   density?: string;
   waterAbsorption?: string;
   frostResistance?: string;

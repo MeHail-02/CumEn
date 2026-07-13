@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
       <div className="navbar-container">
         {/* Logo */}
         <div className="logo" onClick={() => handleNavClick('hub')}>
-          <span className="logo-title">AURA</span>
+          <span className="logo-title">ATLAS</span>
           <span className="logo-subtitle">STONE</span>
         </div>
 
@@ -61,9 +61,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
 
         {/* Contact info / Action */}
         <div className="nav-contact">
-          <a href="tel:+74950000000" className="phone-link">
+          <a href="tel:+79166411774" className="phone-link">
             <Phone size={16} className="phone-icon" />
-            <span>+7 (495) 000-00-00</span>
+            <span>+7 (916) 641-17-74</span>
           </a>
           <button 
             className="btn-callback"
@@ -113,11 +113,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
           </button>
           
           <div className="mobile-drawer-footer">
-            <a href="tel:+74950000000" className="mobile-phone">
-              +7 (495) 000-00-00
+            <a href="tel:+79166411774" className="mobile-phone">
+              +7 (916) 641-17-74
             </a>
-            <p className="mobile-hours">Ежедневно: 09:00 — 21:00</p>
-            <p className="mobile-address">Москва, Кутузовский проспект, 12</p>
+            <p className="mobile-hours">ООО «Атлас Стоун»</p>
+            <p className="mobile-address">г. Шумерля, ул. Ломоносова, д. 60</p>
           </div>
         </nav>
       </div>
@@ -299,21 +299,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
         .mobile-drawer {
           position: fixed;
           top: 0;
-          right: -100%;
+          right: 0;
           width: 80%;
           max-width: 400px;
           height: 100vh;
           background-color: var(--color-bg-dark);
           box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
           z-index: 999;
-          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
           padding: 120px 40px 40px;
-          display: flex;
+          display: none;
           flex-direction: column;
         }
 
         .mobile-drawer.open {
-          transform: translateX(-125%); /* Shift left into screen */
+          display: flex;
         }
 
         .mobile-nav-links {

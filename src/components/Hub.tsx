@@ -14,7 +14,7 @@ import {
   UtensilsCrossed,
   X
 } from 'lucide-react';
-import { stonesData } from '../data/stones';
+import { stonesData } from '../data/catalog';
 import type { Stone } from '../data/stones';
 
 interface HubProps {
@@ -34,7 +34,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 1,
     title: 'Кухонный остров из кварцита Calacatta',
-    location: 'КП Миллениум Парк',
+    location: 'Интерьер частного дома',
     category: 'countertops',
     image: '/23KGdEanRR2MznzETa_lzgaaDC-NB-nqxy3XqwfP_S-N5WGmmCZtMfkeB2Ml_p3DVxSG3-ODlpiACZvGndy2tujt.jpg',
     description: 'Массивный кухонный остров из элитного кварцита с перетеканием прожилок с горизонтальной плоскости на боковины. Лазерная ЧПУ-резка фасок.'
@@ -42,7 +42,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 2,
     title: 'Облицовка камина камнем Calacatta Gold',
-    location: 'Пентхаус на Патриарших прудах',
+    location: 'Каминная зона',
     category: 'fireplaces',
     image: '/67duVkXQNG6hblROJ0SXlhXxeod1JvCP48C-JsnwtxvvtAYzkPXQ4WpPqCJQz_pevmqpJ2SbyWepO5P723I2AvoW.jpg',
     description: 'Каминный портал из цельного камня итальянского мрамора. Симметричный подбор рисунка прожилок, жаропрочная клеевая сборка.'
@@ -50,7 +50,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 3,
     title: 'Ванная комната в едином камне Carrara',
-    location: 'ЖК Knightsbridge Private Park',
+    location: 'Ванная комната',
     category: 'walls',
     image: '/A6GOdjz6TX3_zN7hxqgbBlmVGGpIxjhpPF_ZqXknhoGk79GsqsqhRzT2JKzC3IRtUPv0PpDrJjgKHbDXYuKUMdDp.jpg',
     description: 'Облицовка стен ванной комнаты крупноформатным камнем каррарского мрамора с идеальным совпадением текстурных швов.'
@@ -58,7 +58,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 4,
     title: 'Световое панно из оникса Emerald',
-    location: 'Ресторан Luxury Terrace, Москва',
+    location: 'Общественный интерьер',
     category: 'walls',
     image: '/KobXvYSB_0la3CgZu5EJqciXouQ_0dj6LOppHDZvcNOPhmhfE8nG3ENPxZX2s9QLjfAJuox3P4XjZ2CIWqHrusJh.jpg',
     description: 'Декоративная стена из полупрозрачного зеленого оникса со встроенной светодиодной подсветкой теплого спектра.'
@@ -66,7 +66,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 5,
     title: 'Ступени из гранита Absolute Black',
-    location: 'Офис-центр на Якиманке',
+    location: 'Входная группа',
     category: 'stairs',
     image: '/S2qiahutznH_yLGIu4pdpTe3807-lkHhtcp9hoczCuE0orM6ZOCGs7AvICuQDazX8UdbR3BKW-t1mdb2aVCl4Xm3.jpg',
     description: 'Износостойкая лестничная группа из черного индийского гранита. Термообработка поверхности для исключения скольжения.'
@@ -74,7 +74,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 6,
     title: 'Облицовка стен «бабочкой» из мрамора',
-    location: 'Загородная резиденция, Барвиха',
+    location: 'Гостиная частного дома',
     category: 'walls',
     image: '/Vb9oo3-T7VetACUO0tkcUBra62S4S1GINHGAREuRSN18Kqxp2tfkja3zC0irFUmgnhmNHPsVuMwoyWoeOV4L8VRm.jpg',
     description: 'Зеркальное панно (Bookmatch) из четырех камней Calacatta в интерьере гостиной.'
@@ -82,7 +82,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 7,
     title: 'Кухонный остров из кварцита Patagonia',
-    location: 'Коттеджный поселок Барвиха',
+    location: 'Кухня частного дома',
     category: 'countertops',
     image: '/XLMfG88_lma97yZEApZ6CQs2lmzJGt0atTmzkpbnTh2AsAkYygJ1uN0KZyqb44PwbUj9y-Ek9gzoQmIeYEwowZLs.jpg',
     description: 'Эксклюзивный кухонный остров из натурального кварцита Patagonia с выразительной текстурой.'
@@ -90,7 +90,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 8,
     title: 'Каминный зал с облицовкой Calacatta Gold',
-    location: 'Пентхаус на Патриарших прудах',
+    location: 'Каминная зона',
     category: 'fireplaces',
     image: '/Xu7IjVfSZDiciekfaFKI_tTy_WJyH4oifiRoRb_Vae00ROrJj2dV85WhQrX2Lnab6oveSEXD2jl7-hmFeNPYE06l.jpg',
     description: 'Облицовка стен и портала камина премиальным мрамором Calacatta Gold с симметричной раскладкой рисунка.'
@@ -98,7 +98,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: 9,
     title: 'Ванная комната в едином камне Carrara White',
-    location: 'ЖК Knightsbridge Private Park',
+    location: 'Ванная комната',
     category: 'walls',
     image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
     description: 'Роскошная отделка ванной комнаты плитами из белого каррарского мрамора.'
@@ -170,7 +170,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
         <div className="container hero-content-wrapper">
           <div className="hero-badge animate-fade-in-down">
             <Sparkles size={14} className="hero-badge-icon" />
-            <span>Эксклюзивный импорт и обработка камня</span>
+            <span>Натуральный камень · изготовление · монтаж</span>
           </div>
           
           <h1 className="hero-title animate-fade-in">
@@ -179,7 +179,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           </h1>
           
           <p className="hero-description animate-fade-in-up">
-            AURA STONE — это синергия крупнейшей галереи редких пород натурального камня и передового камнеобрабатывающего завода. Мы поставляем камень напрямую с карьеров Италии, Бразилии и Испании и превращаем их в высокохудожественные элементы вашего интерьера.
+            ATLAS STONE помогает подобрать натуральный камень и создать изделие под конкретный интерьер. Сопровождаем проект от консультации и замера до обработки материала и монтажа готового изделия.
           </p>
 
           <div className="hero-actions animate-fade-in-up">
@@ -211,10 +211,10 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
-              <span className="gateway-tag">Склад в Москве</span>
+              <span className="gateway-tag">Каталог материалов</span>
               <h2 className="gateway-title">Галерея камня</h2>
               <p className="gateway-desc">
-                Коллекция из более чем 250 сортов мрамора, гранита, кварцита и оникса. Выберите свой камень вживую или по каталогу.
+                Подбор мрамора и гранита по цвету, происхождению, фактуре и характеристикам для вашего проекта.
               </p>
               <span className="gateway-btn">
                 Перейти в каталог <ArrowRight size={16} className="btn-arrow" />
@@ -231,7 +231,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
-              <span className="gateway-tag">Собственный завод</span>
+              <span className="gateway-tag">Изготовление под проект</span>
               <h2 className="gateway-title">Производство & Услуги</h2>
               <p className="gateway-desc">
                 Высокоточное изготовление изделий любой сложности: столешницы, камины, лестницы, стеновые панели с подсветкой и монтаж.
@@ -437,8 +437,8 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       <section className="portfolio-masonry-section">
         <div className="container">
           <div className="section-title-wrap text-center">
-            <span className="section-tag">Реализовано</span>
-            <h2 className="section-title">Портфолио объектов</h2>
+            <span className="section-tag">Идеи и материалы</span>
+            <h2 className="section-title">Камень в интерьере</h2>
             <div className="accent-line" />
           </div>
 
@@ -474,8 +474,8 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       <section className="philosophy-section">
         <div className="container">
           <div className="section-header text-center">
-            <span className="section-tag">Стандарты AURA STONE</span>
-            <h2 className="section-title">Философия совершенства</h2>
+            <span className="section-tag">Подход ATLAS STONE</span>
+            <h2 className="section-title">От материала до готового изделия</h2>
             <div className="accent-line" />
           </div>
 
@@ -484,9 +484,9 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               <div className="value-icon-box">
                 <Compass size={32} strokeWidth={1} />
               </div>
-              <h3 className="value-title">Экспедиции на карьеры</h3>
+              <h3 className="value-title">Материал под задачу</h3>
               <p className="value-desc">
-                Наши технологи лично посещают лучшие карьеры мира (Италия, Бразилия, Индия), инспектируя каждый блок на отсутствие микротрещин и богатство текстуры перед отгрузкой.
+                Учитываем назначение изделия, нагрузку, условия эксплуатации, оттенок и природный рисунок камня.
               </p>
             </div>
 
@@ -494,9 +494,9 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               <div className="value-icon-box">
                 <Cpu size={32} strokeWidth={1} />
               </div>
-              <h3 className="value-title">Итальянские станки CNC</h3>
+              <h3 className="value-title">Точный расчет</h3>
               <p className="value-desc">
-                Обработка на 5-осевых обрабатывающих центрах Brembana и гидроабразивная резка Waterjet гарантируют идеальное совпадение швов и высочайшую точность резов до десятых долей миллиметра.
+                Фиксируем размеры, тип обработки, профиль кромки и особенности монтажа до начала изготовления.
               </p>
             </div>
 
@@ -504,9 +504,9 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               <div className="value-icon-box">
                 <Box size={32} strokeWidth={1} />
               </div>
-              <h3 className="value-title">Технология Bookmatch</h3>
+              <h3 className="value-title">Контроль результата</h3>
               <p className="value-desc">
-                Мы подбираем камни из одной партии ("бабочка") для создания масштабных настенных панно и полов с зеркально симметричным перетеканием прожилок камня.
+                Согласовываем рисунок материала и детали изделия, чтобы готовое решение органично выглядело в интерьере.
               </p>
             </div>
           </div>
@@ -518,27 +518,27 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
         <div className="container">
           <div className="metrics-grid">
             <div className="metric-card">
-              <div className="metric-num text-gold">250+</div>
-              <div className="metric-label">Сортов камня на складе</div>
-              <p className="metric-desc">Собственный склад в Москве позволяет оперативно подобрать камни под проект</p>
+              <div className="metric-num text-gold">01</div>
+              <div className="metric-label">Подбор материала</div>
+              <p className="metric-desc">Помогаем выбрать камень по внешнему виду, свойствам и бюджету проекта</p>
             </div>
 
             <div className="metric-card">
-              <div className="metric-num text-gold">0.1 мм</div>
-              <div className="metric-label">Точность реза CNC</div>
-              <p className="metric-desc">Итальянские пятиосевые станки гарантируют микронные допуски и идеальные стыки</p>
+              <div className="metric-num text-gold">02</div>
+              <div className="metric-label">Замер и расчет</div>
+              <p className="metric-desc">Уточняем геометрию, обработку кромок и технические особенности изделия</p>
             </div>
 
             <div className="metric-card">
-              <div className="metric-num text-gold">1200+</div>
-              <div className="metric-label">Сданных изделий</div>
-              <p className="metric-desc">От столешниц до крупноформатных панно с инкрустацией и внутренней подсветкой</p>
+              <div className="metric-num text-gold">03</div>
+              <div className="metric-label">Изготовление</div>
+              <p className="metric-desc">Выполняем раскрой и обработку материала по согласованным параметрам</p>
             </div>
 
             <div className="metric-card">
-              <div className="metric-num text-gold">5 лет</div>
-              <div className="metric-label">Гарантии на монтаж</div>
-              <p className="metric-desc">Собственные монтажные бригады и сертифицированные крепежные системы</p>
+              <div className="metric-num text-gold">04</div>
+              <div className="metric-label">Доставка и монтаж</div>
+              <p className="metric-desc">Организуем установку готового изделия с учетом особенностей объекта</p>
             </div>
           </div>
         </div>
@@ -651,6 +651,48 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           align-items: center;
           justify-content: center;
           gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+          .hero-intro {
+            min-height: 100svh;
+            padding-top: 120px;
+            padding-bottom: 70px;
+          }
+
+          .hero-badge {
+            max-width: 100%;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.62rem;
+            line-height: 1.5;
+            letter-spacing: 0.1em;
+            text-align: center;
+          }
+
+          .hero-title {
+            width: 100%;
+            font-size: clamp(2.2rem, 11vw, 3rem);
+          }
+
+          .hero-description {
+            width: 100%;
+            margin-bottom: 32px;
+            font-size: 0.9rem;
+            line-height: 1.65;
+          }
+
+          .hero-actions {
+            width: 100%;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+          }
+
+          .hero-btn {
+            width: 100%;
+            min-width: 0;
+          }
         }
 
         .hero-scrolldown {
