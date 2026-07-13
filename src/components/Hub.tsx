@@ -1339,6 +1339,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           line-height: 1.5;
           color: var(--color-text-dark-muted);
           font-weight: 300;
+          white-space: pre-wrap;
         }
 
         .result-price {

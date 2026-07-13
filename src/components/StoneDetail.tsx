@@ -560,6 +560,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
           color: var(--color-text-dark-muted);
           margin-bottom: 40px;
           font-weight: 300;
+          white-space: pre-wrap;
         }
 
         /* Specs Table */
