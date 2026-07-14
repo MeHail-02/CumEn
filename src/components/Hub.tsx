@@ -102,6 +102,38 @@ const portfolioItems: PortfolioItem[] = [
     category: 'walls',
     image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
     description: 'Роскошная отделка ванной комнаты плитами из белого каррарского мрамора.'
+  },
+  {
+    id: 10,
+    title: 'Мраморная лестница Calacatta',
+    location: 'Загородная резиденция',
+    category: 'stairs',
+    image: '/RF3R1W_Q8PM80tODsfb4h8pAGUfhqVgCb1kaOcsEgIM1jBDKRHCKMA9YvUvkM_W9_RK7bNsfXB6fu-WVYI4EMYA2.jpg',
+    description: 'Роскошная внутренняя лестница из белого мрамора с полированной отделкой. Сложные профили ступеней, бесшовная стыковка элементов и кованое ограждение.'
+  },
+  {
+    id: 11,
+    title: 'Облицовка фасада и колонн серым гранитом',
+    location: 'Деловой центр',
+    category: 'walls',
+    image: '/RmPdbdYnkowiR5HIKJN4bNiLeS8OHk3swKFgPhLtB7pyEAZ3d-GOOVvdDyVbDdRKv1u506c84f85r_SJvaztv99Z.jpg',
+    description: 'Проект вентилируемого фасада первого уровня коммерческого здания из серого гранита. Включает облицовку стен плитами с рустом, пилястры и цоколь.'
+  },
+  {
+    id: 12,
+    title: 'Входная группа со скульптурой льва',
+    location: 'Бизнес-центр',
+    category: 'walls',
+    image: '/6XnjB2luts8Ohw8RAjvWfuJFWCXFMWFQKtlFcgYOhfjbcw4mNScuqLMYQ6R_PDijYaGWTSYHikLtsVy_ANMttx1b.jpg',
+    description: 'Изготовление и установка классической скульптуры льва из светлого мрамора на гранитном постаменте перед главным входом в здание.'
+  },
+  {
+    id: 13,
+    title: 'Мощение входной зоны и облицовка портала',
+    location: 'Офисный комплекс',
+    category: 'stairs',
+    image: '/c-PL41vcNbPYZR2cLPWZ_pbXAGrUfzwk9aoV-GhYAaIh6FUdtlaZ4KEjUuISnybXcSMbThBDrzYAkGR14RqVb7bj.jpg',
+    description: 'Благоустройство входной группы: мощение площадки гранитной брусчаткой, облицовка входного портала цельными блоками гранита и гранитные цветочницы.'
   }
 ];
 

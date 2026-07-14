@@ -1,8 +1,15 @@
 from pathlib import Path
+import sys
+
 from PIL import Image, ImageOps
 
 
-image_directory = Path(__file__).resolve().parents[1] / "public" / "venezia-granite"
+directory_name = sys.argv[1] if len(sys.argv) > 1 else "venezia-granite"
+image_directory = Path(__file__).resolve().parents[1] / "public" / directory_name
+
+if not image_directory.is_dir():
+    raise SystemExit(f"Папка не найдена: {image_directory}")
+
 image_paths = sorted(image_directory.glob("*.webp"))
 
 before = sum(path.stat().st_size for path in image_paths)

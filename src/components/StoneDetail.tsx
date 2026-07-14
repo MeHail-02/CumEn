@@ -20,7 +20,6 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
   const [length, setLength] = useState<number>(2.0); // в метрах
   const [width, setWidth] = useState<number>(0.6); // в метрах
   const [thickness, setThickness] = useState<string>(stone ? stone.thickness[0] : '');
-  const [finishing, setFinishing] = useState<string>(stone ? stone.finishing[0] : '');
   const [edgeProfile, setEdgeProfile] = useState<'classic' | 'half-bullnose' | 'full-bullnose' | 'ogee'>('classic');
 
   // Lead form state
@@ -78,21 +77,11 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
 
   const thicknessInMillimeters = Number(thickness.match(/[\d,.]+/)?.[0].replace(',', '.')) || 20;
   const thicknessMultiplier = Math.max(1, thicknessInMillimeters / 20);
-  const finishingMultiplier = /бучард/i.test(finishing)
-    ? 1.18
-    : /кож/i.test(finishing)
-      ? 1.12
-      : /термо|песк/i.test(finishing)
-        ? 1.1
-        : /лощ|шлиф/i.test(finishing)
-          ? 1.05
-          : 1;
 
   const calculatedStoneCost = area
     * stonePrice
     * baseProductMultipliers[productType]
-    * thicknessMultiplier
-    * finishingMultiplier;
+    * thicknessMultiplier;
   const calculatedEdgeCost = perimeter * edgeProfilePrices[edgeProfile];
   const installationCost = area * 5000 + 4000; // base install fee
   
@@ -175,10 +164,6 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                   <tr>
                     <th>Доступная толщина</th>
                     <td>{stone.thickness.join(', ')}</td>
-                  </tr>
-                  <tr>
-                    <th>Обработка поверхности</th>
-                    <td>{stone.finishing.join(', ')}</td>
                   </tr>
                   {stone.density && (
                     <tr>
@@ -306,31 +291,17 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                   </div>
                 </div>
 
-                <div className="param-row-inputs">
-                  <div className="param-group">
-                    <label>Толщина камня (плиты)</label>
-                    <select 
-                      value={thickness} 
-                      onChange={(e) => setThickness(e.target.value)}
-                      className="calc-select"
-                    >
-                      {stone.thickness.map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="param-group">
-                    <label>Тип обработки</label>
-                    <select 
-                      value={finishing} 
-                      onChange={(e) => setFinishing(e.target.value)}
-                      className="calc-select"
-                    >
-                      {stone.finishing.map(f => (
-                        <option key={f} value={f}>{f}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="param-group">
+                  <label>Толщина камня (плиты)</label>
+                  <select 
+                    value={thickness} 
+                    onChange={(e) => setThickness(e.target.value)}
+                    className="calc-select"
+                  >
+                    {stone.thickness.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="param-group">
@@ -378,7 +349,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                   <p className="price-details-footnote">
                     {stone.price === 0 
                       ? '*Расчет стоимости изделия производится индивидуально по запросу.'
-                      : `*Включает: материал ${thickness} (${area.toFixed(2)} м²), обработку «${finishing}», обработку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
+                      : `*Включает: материал ${thickness} (${area.toFixed(2)} м²), обработку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
                   </p>
                 </div>
 
