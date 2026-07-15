@@ -1768,7 +1768,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "розовый",
     "origin": "Китай",
     "price": 26818,
-    "image": "/venezia-marble/pink.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Pink — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: розовый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "18 мм"
@@ -4657,7 +4657,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "розовый",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/delicato-avorio-pink.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Delicato Avorio Pink — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: розовый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -13944,7 +13944,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "белый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/various.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Various — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: белый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -13966,7 +13966,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "коричневый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/pocahontas.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Pocahontas — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: коричневый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14054,7 +14054,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Турция",
     "price": 0,
-    "image": "/venezia-marble/grigio-movimenti.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Grigio Movimenti — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: серый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14098,7 +14098,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Китай",
     "price": 0,
-    "image": "/venezia-marble/jura-grey.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Jura Grey — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: серый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14120,7 +14120,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Китай",
     "price": 14942,
-    "image": "/venezia-marble/shells-grey.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Shells Grey — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: серый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14142,7 +14142,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "коричневый",
     "origin": "Италия",
     "price": 63057,
-    "image": "/venezia-marble/macchia-vecchia.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Macchia Vecchia — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: коричневый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "18 мм"
@@ -14164,7 +14164,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Италия",
     "price": 42914,
-    "image": "/venezia-marble/artic-sky.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Artic Sky — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: серый. Доступные варианты обработки: под кожу, лощеная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14186,7 +14186,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "черный",
     "origin": "Италия",
     "price": 28733,
-    "image": "/venezia-marble/crystal-portoro.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Crystal Portoro — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: черный. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14208,7 +14208,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "зеленый",
     "origin": "Китай",
     "price": 0,
-    "image": "/venezia-marble/jade-green.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Jade Green — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: зеленый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14230,7 +14230,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "черный",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/new-portoro-extra.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор New Portoro Extra — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: черный. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14252,7 +14252,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/majestic-grey.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Majestic Grey — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: серый. Доступные варианты обработки: полированная. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14274,7 +14274,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "белый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/volakas-rainbow.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Volakas Rainbow — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: белый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14296,7 +14296,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "белый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/karibib-fantasy-white.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Karibib Fantasy White — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: белый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14318,7 +14318,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "розовый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/aegean-rose.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Aegean Rose — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: розовый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14340,7 +14340,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "белый",
     "origin": "Греция",
     "price": 0,
-    "image": "/venezia-marble/karibib-fantasy-multicolor.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Karibib Fantasy Multicolor — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: белый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14362,7 +14362,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "красный",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/rosso-imperiale.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Rosso Imperiale — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: красный. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14384,7 +14384,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "зеленый",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/fantastico-arni-viola.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Fantastico Arni Viola — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: зеленый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14406,7 +14406,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "белый",
     "origin": "Бразилия",
     "price": 0,
-    "image": "/venezia-marble/aurelius-white.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Aurelius White — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: белый. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14428,7 +14428,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/four-seasons.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Four Seasons — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: эксклюзивный. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"
@@ -14450,7 +14450,7 @@ export const veneziaMarbleData: Stone[] = [
     "color": "серый",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-marble/notre-dame.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Мрамор Notre Dame — натуральный камень с выразительным природным рисунком и благородной кристаллической фактурой. Основные оттенки: эксклюзивный. Подходит для облицовки стен и полов, лестниц, подоконников, каминов, столешниц и декоративных интерьерных элементов.",
     "thickness": [
       "20 мм"

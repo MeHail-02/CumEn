@@ -4693,7 +4693,7 @@ export const veneziaQuartziteData: Stone[] = [
     "color": "белый",
     "origin": "Бразилия",
     "price": 139485,
-    "image": "/venezia-quartzite/patagonia-vittro.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Кварцит Patagonia Vittro — прочный натуральный камень с выразительным природным рисунком, подходящий для интенсивной эксплуатации. Основные оттенки: белый. Доступная обработка: полированная. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "20 мм"
@@ -4715,7 +4715,7 @@ export const veneziaQuartziteData: Stone[] = [
     "color": "синий",
     "origin": "Бразилия",
     "price": 0,
-    "image": "/venezia-quartzite/blue-horizon.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Кварцит Blue Horizon — прочный натуральный камень с выразительным природным рисунком, подходящий для интенсивной эксплуатации. Основные оттенки: голубой. Доступная обработка: полированная. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "20 мм"
@@ -4737,7 +4737,7 @@ export const veneziaQuartziteData: Stone[] = [
     "color": "белый",
     "origin": "Бразилия",
     "price": 0,
-    "image": "/venezia-quartzite/arctic-pearl.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Кварцит Arctic Pearl — прочный натуральный камень с выразительным природным рисунком, подходящий для интенсивной эксплуатации. Основные оттенки: белый. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "20 мм"
@@ -4759,7 +4759,7 @@ export const veneziaQuartziteData: Stone[] = [
     "color": "красный",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-quartzite/rosso-cardinale.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Кварцит Rosso Cardinale — прочный натуральный камень с выразительным природным рисунком, подходящий для интенсивной эксплуатации. Основные оттенки: красный. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "20 мм"

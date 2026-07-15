@@ -148,9 +148,15 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
   const [quizResult, setQuizResult] = useState<Stone | null>(null);
 
   // Featured stones subset
-  const featuredStones = stonesData.filter(s => 
-    ['absolute-black', 'koelga-marble', 'volga-blue-granite', 'granatovy-amfibolit-granite'].includes(s.id)
-  );
+  const featuredStoneIds = [
+    'venezia-quartzite-cristallo-blue',
+    'venezia-marble-white-beauty',
+    'venezia-marble-green-abbey',
+    'venezia-oniks-onice-nero-passion',
+  ];
+  const featuredStones = featuredStoneIds
+    .map(id => stonesData.find(stone => stone.id === id))
+    .filter((stone): stone is Stone => stone !== undefined);
 
   const startQuizAgain = () => {
     setQuizStep(1);

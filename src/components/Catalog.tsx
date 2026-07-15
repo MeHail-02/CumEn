@@ -6,10 +6,51 @@ interface CatalogProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
 }
 
-type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'лабрадорит' | 'песчаник' | 'известняк';
+type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'лабрадорит';
 type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый' | 'розовый';
-type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
+type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'density-desc' | 'water-asc' | 'strength-desc';
 const CATALOG_PAGE_SIZE = 24;
+
+type PhysicalProperty = 'density' | 'waterAbsorption' | 'compressiveStrength';
+
+const PHYSICAL_SORT_CONFIG: Partial<Record<SortOption, { property: PhysicalProperty; label: string }>> = {
+  'density-desc': { property: 'density', label: 'Плотность' },
+  'water-asc': { property: 'waterAbsorption', label: 'Водопоглощение' },
+  'strength-desc': { property: 'compressiveStrength', label: 'Прочность при сжатии' },
+};
+
+const getPhysicalPropertyValue = (value: string | undefined, property: PhysicalProperty) => {
+  if (!value) return null;
+
+  const units = property === 'density' ? ['кг/м', 'г/см', 'т/м'] : property === 'waterAbsorption' ? ['%'] : ['мпа'];
+  const normalizedValue = value.toLocaleLowerCase('ru-RU');
+  const unitIndex = units
+    .map(unit => normalizedValue.indexOf(unit))
+    .filter(index => index >= 0)
+    .sort((a, b) => a - b)[0];
+  const valuePart = unitIndex === undefined ? normalizedValue : normalizedValue.slice(0, unitIndex);
+  const numbers = valuePart.match(/\d+(?:[.,]\d+)?/g)?.map(number => Number(number.replace(',', '.')));
+
+  if (!numbers?.length) return null;
+
+  const representativeValue = numbers.slice(0, 2).reduce((sum, number) => sum + number, 0) / Math.min(numbers.length, 2);
+  const densityMultiplier = property === 'density' && (normalizedValue.includes('г/см') || normalizedValue.includes('т/м')) ? 1000 : 1;
+  return representativeValue * densityMultiplier;
+};
+
+const comparePhysicalProperties = (
+  a: string | undefined,
+  b: string | undefined,
+  property: PhysicalProperty,
+  direction: 'asc' | 'desc',
+) => {
+  const aValue = getPhysicalPropertyValue(a, property);
+  const bValue = getPhysicalPropertyValue(b, property);
+
+  if (aValue === null) return bValue === null ? 0 : 1;
+  if (bValue === null) return -1;
+  return direction === 'asc' ? aValue - bValue : bValue - aValue;
+};
 
 export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
   const [search, setSearch] = useState('');
@@ -33,7 +74,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
 
     // Search
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
       result = result.filter(s => 
         s.name.toLowerCase().includes(q) || 
         s.description.toLowerCase().includes(q) ||
@@ -75,9 +116,12 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
       });
     } else if (sortBy === 'name-asc') {
       result.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === 'rarity') {
-      const rarityRank = { 'Коллекционный': 3, 'Импорт': 2, 'Урал': 1, 'Карелия': 1, 'Россия': 1 };
-      result.sort((a, b) => (rarityRank[b.rarity] || 0) - (rarityRank[a.rarity] || 0));
+    } else if (sortBy === 'density-desc') {
+      result.sort((a, b) => comparePhysicalProperties(a.density, b.density, 'density', 'desc'));
+    } else if (sortBy === 'water-asc') {
+      result.sort((a, b) => comparePhysicalProperties(a.waterAbsorption, b.waterAbsorption, 'waterAbsorption', 'asc'));
+    } else if (sortBy === 'strength-desc') {
+      result.sort((a, b) => comparePhysicalProperties(a.compressiveStrength, b.compressiveStrength, 'compressiveStrength', 'desc'));
     }
 
     return result;
@@ -88,6 +132,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
   }, [search, selectedType, selectedColor, selectedOrigin, sortBy]);
 
   const visibleStones = filteredStones.slice(0, visibleCount);
+  const activePhysicalSort = PHYSICAL_SORT_CONFIG[sortBy];
 
   const handleCardClick = (stoneId: string) => {
     setView('detail', stoneId);
@@ -102,7 +147,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
     setSortBy('default');
   };
 
-  const isFiltered = search !== '' || selectedType !== 'all' || selectedColor !== 'all' || selectedOrigin !== 'all';
+  const isFiltered = search.trim() !== '' || selectedType !== 'all' || selectedColor !== 'all' || selectedOrigin !== 'all';
 
   return (
     <div className="catalog-page fade-in">
@@ -155,7 +200,9 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                 <option value="price-asc">Цена: по возрастанию</option>
                 <option value="price-desc">Цена: по убыванию</option>
                 <option value="name-asc">Название: А - Я</option>
-                <option value="rarity">По редкости</option>
+                <option value="density-desc">Плотность: выше</option>
+                <option value="water-asc">Водопоглощение: ниже</option>
+                <option value="strength-desc">Прочность: выше</option>
               </select>
             </div>
           </div>
@@ -167,7 +214,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Тип камня</h3>
               <div className="filter-options">
-                {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
+                {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит'] as StoneTypeFilter[]).map(type => (
                   <button 
                     key={type}
                     className={`filter-btn ${selectedType === type ? 'active' : ''}`}
@@ -229,6 +276,57 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <span className="results-count">
                 {isFiltered ? 'Найдено' : 'В каталоге'} позиций: {filteredStones.length}
               </span>
+              {isFiltered && (
+                <div className="active-filter-chips" aria-label="Активные фильтры">
+                  {search.trim() && (
+                    <button
+                      type="button"
+                      className="active-filter-chip"
+                      onClick={() => setSearch('')}
+                      aria-label={`Убрать фильтр поиска: ${search.trim()}`}
+                    >
+                      <span>Поиск: «{search.trim()}»</span>
+                      <X size={13} aria-hidden="true" />
+                    </button>
+                  )}
+                  {selectedType !== 'all' && (
+                    <button
+                      type="button"
+                      className="active-filter-chip"
+                      onClick={() => setSelectedType('all')}
+                      aria-label={`Убрать фильтр по типу: ${selectedType}`}
+                    >
+                      <span>{selectedType}</span>
+                      <X size={13} aria-hidden="true" />
+                    </button>
+                  )}
+                  {selectedColor !== 'all' && (
+                    <button
+                      type="button"
+                      className="active-filter-chip"
+                      onClick={() => setSelectedColor('all')}
+                      aria-label={`Убрать фильтр по цвету: ${selectedColor}`}
+                    >
+                      <span>{selectedColor}</span>
+                      <X size={13} aria-hidden="true" />
+                    </button>
+                  )}
+                  {selectedOrigin !== 'all' && (
+                    <button
+                      type="button"
+                      className="active-filter-chip"
+                      onClick={() => setSelectedOrigin('all')}
+                      aria-label={`Убрать фильтр по происхождению: ${selectedOrigin}`}
+                    >
+                      <span>{selectedOrigin}</span>
+                      <X size={13} aria-hidden="true" />
+                    </button>
+                  )}
+                  <button type="button" className="clear-filter-chips" onClick={clearFilters}>
+                    Сбросить всё
+                  </button>
+                </div>
+              )}
             </div>
 
             {filteredStones.length > 0 ? (
@@ -253,6 +351,12 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
                     <div className="card-info">
                       <span className="stone-type">{stone.type} &bull; {stone.origin}</span>
                       <h3 className="stone-name">{stone.name}</h3>
+                      {activePhysicalSort && (
+                        <div className="stone-physical-property">
+                          <span>{activePhysicalSort.label}</span>
+                          <strong>{stone[activePhysicalSort.property] ?? 'Нет данных'}</strong>
+                        </div>
+                      )}
                       <div className="card-footer">
                         <span className="stone-price">
                           {stone.price === 0 ? 'цена по запросу' : <>от {stone.price.toLocaleString('ru-RU')} <span className="currency">₽ / м²</span></>}
@@ -304,7 +408,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Тип камня</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
+                  {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит'] as StoneTypeFilter[]).map(type => (
                     <button 
                       key={type}
                       className={`drawer-option-btn ${selectedType === type ? 'active' : ''}`}
@@ -664,10 +768,57 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
 
         .active-filters-row {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
           font-size: 0.85rem;
           color: var(--color-text-dark-muted);
+        }
+
+        .active-filter-chips {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .active-filter-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          max-width: min(100%, 320px);
+          padding: 7px 10px;
+          border: 1px solid var(--color-accent-gold-border);
+          background-color: var(--color-accent-gold-light);
+          color: var(--color-accent-gold);
+          font-size: 0.75rem;
+          transition: var(--transition-fast);
+        }
+
+        .active-filter-chip span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .active-filter-chip:hover,
+        .active-filter-chip:focus-visible {
+          border-color: var(--color-accent-gold);
+          background-color: rgba(197, 168, 128, 0.16);
+        }
+
+        .clear-filter-chips {
+          padding: 7px 4px;
+          color: var(--color-text-dark-muted);
+          font-size: 0.75rem;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          transition: var(--transition-fast);
+        }
+
+        .clear-filter-chips:hover,
+        .clear-filter-chips:focus-visible {
+          color: #ffffff;
         }
 
         .stone-grid {
@@ -806,6 +957,26 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
           min-height: 2.6em;
           line-height: 1.3;
           word-break: break-word;
+        }
+
+        .stone-physical-property {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 12px;
+          margin: -4px 0 16px;
+          padding: 10px 12px;
+          background-color: rgba(197, 168, 128, 0.07);
+          border-left: 2px solid var(--color-accent-gold);
+          font-size: 0.72rem;
+          color: var(--color-text-dark-muted);
+        }
+
+        .stone-physical-property strong {
+          color: #ffffff;
+          font-size: 0.78rem;
+          font-weight: 500;
+          text-align: right;
         }
 
         .card-footer {

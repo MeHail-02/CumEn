@@ -654,7 +654,7 @@ export const veneziaTravertinData: Stone[] = [
     "color": "серый",
     "origin": "Италия",
     "price": 0,
-    "image": "/venezia-travertin/ocean-silver.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Травертин Ocean Silver — натуральный пористый камень с тёплой природной палитрой и характерной слоистой фактурой. Основные оттенки: серый. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "20 мм"
@@ -676,7 +676,7 @@ export const veneziaTravertinData: Stone[] = [
     "color": "серый",
     "origin": "Китай",
     "price": 0,
-    "image": "/venezia-travertin/travertine-grey.webp",
+    "image": "/stone-placeholder.webp",
     "description": "Травертин Travertine Grey — натуральный пористый камень с тёплой природной палитрой и характерной слоистой фактурой. Основные оттенки: серый. Доступная обработка: лощеная. Материал применяют для столешниц, облицовки стен и полов, лестниц, каминов и декоративных панно.",
     "thickness": [
       "18 мм"

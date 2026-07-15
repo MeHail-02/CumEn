@@ -27,7 +27,7 @@ const mapLimit = async (items, limit, worker) => {
 
 const source = await readFile(dataFile, 'utf8');
 const products = JSON.parse(source.slice(source.indexOf(marker) + marker.length).trim().replace(/;$/, ''));
-const failedProducts = products.filter((product) => product.image === '/Koelga.jpg');
+const failedProducts = products.filter((product) => product.image === '/stone-placeholder.webp');
 
 const downloadHttp1 = (url, redirects = 5) => new Promise((resolve, reject) => {
   const hostname = new URL(url).hostname;
