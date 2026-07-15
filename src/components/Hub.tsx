@@ -21,125 +21,110 @@ interface HubProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
 }
 
+type PortfolioCategory = 'cladding' | 'stairs' | 'floors' | 'monuments' | 'fireplaces';
+type PortfolioFilter = 'all' | PortfolioCategory;
+
 interface PortfolioItem {
   id: number;
-  title: string;
-  location: string;
-  category: 'countertops' | 'fireplaces' | 'walls' | 'stairs';
+  category: PortfolioCategory;
   image: string;
-  description: string;
 }
+
+const portfolioCategories: { id: PortfolioFilter; label: string }[] = [
+  { id: 'all', label: 'Все работы' },
+  { id: 'cladding', label: 'Панно и облицовка' },
+  { id: 'stairs', label: 'Лестницы' },
+  { id: 'floors', label: 'Полы и мощение' },
+  { id: 'monuments', label: 'Памятники и скульптуры' },
+  { id: 'fireplaces', label: 'Камины' },
+];
 
 const portfolioItems: PortfolioItem[] = [
   {
     id: 1,
-    title: 'Кухонный остров из кварцита Calacatta',
-    location: 'Интерьер частного дома',
-    category: 'countertops',
+    category: 'stairs',
     image: '/23KGdEanRR2MznzETa_lzgaaDC-NB-nqxy3XqwfP_S-N5WGmmCZtMfkeB2Ml_p3DVxSG3-ODlpiACZvGndy2tujt.jpg',
-    description: 'Массивный кухонный остров из элитного кварцита с перетеканием прожилок с горизонтальной плоскости на боковины. Лазерная ЧПУ-резка фасок.'
   },
   {
     id: 2,
-    title: 'Облицовка камина камнем Calacatta Gold',
-    location: 'Каминная зона',
-    category: 'fireplaces',
+    category: 'floors',
     image: '/67duVkXQNG6hblROJ0SXlhXxeod1JvCP48C-JsnwtxvvtAYzkPXQ4WpPqCJQz_pevmqpJ2SbyWepO5P723I2AvoW.jpg',
-    description: 'Каминный портал из цельного камня итальянского мрамора. Симметричный подбор рисунка прожилок, жаропрочная клеевая сборка.'
   },
   {
     id: 3,
-    title: 'Ванная комната в едином камне Carrara',
-    location: 'Ванная комната',
-    category: 'walls',
+    category: 'cladding',
     image: '/A6GOdjz6TX3_zN7hxqgbBlmVGGpIxjhpPF_ZqXknhoGk79GsqsqhRzT2JKzC3IRtUPv0PpDrJjgKHbDXYuKUMdDp.jpg',
-    description: 'Облицовка стен ванной комнаты крупноформатным камнем каррарского мрамора с идеальным совпадением текстурных швов.'
   },
   {
     id: 4,
-    title: 'Световое панно из оникса Emerald',
-    location: 'Общественный интерьер',
-    category: 'walls',
+    category: 'cladding',
     image: '/KobXvYSB_0la3CgZu5EJqciXouQ_0dj6LOppHDZvcNOPhmhfE8nG3ENPxZX2s9QLjfAJuox3P4XjZ2CIWqHrusJh.jpg',
-    description: 'Декоративная стена из полупрозрачного зеленого оникса со встроенной светодиодной подсветкой теплого спектра.'
   },
   {
     id: 5,
-    title: 'Ступени из гранита Absolute Black',
-    location: 'Входная группа',
     category: 'stairs',
     image: '/S2qiahutznH_yLGIu4pdpTe3807-lkHhtcp9hoczCuE0orM6ZOCGs7AvICuQDazX8UdbR3BKW-t1mdb2aVCl4Xm3.jpg',
-    description: 'Износостойкая лестничная группа из черного индийского гранита. Термообработка поверхности для исключения скольжения.'
   },
   {
     id: 6,
-    title: 'Облицовка стен «бабочкой» из мрамора',
-    location: 'Гостиная частного дома',
-    category: 'walls',
+    category: 'floors',
     image: '/Vb9oo3-T7VetACUO0tkcUBra62S4S1GINHGAREuRSN18Kqxp2tfkja3zC0irFUmgnhmNHPsVuMwoyWoeOV4L8VRm.jpg',
-    description: 'Зеркальное панно (Bookmatch) из четырех камней Calacatta в интерьере гостиной.'
   },
   {
     id: 7,
-    title: 'Кухонный остров из кварцита Patagonia',
-    location: 'Кухня частного дома',
-    category: 'countertops',
+    category: 'floors',
     image: '/XLMfG88_lma97yZEApZ6CQs2lmzJGt0atTmzkpbnTh2AsAkYygJ1uN0KZyqb44PwbUj9y-Ek9gzoQmIeYEwowZLs.jpg',
-    description: 'Эксклюзивный кухонный остров из натурального кварцита Patagonia с выразительной текстурой.'
   },
   {
     id: 8,
-    title: 'Каминный зал с облицовкой Calacatta Gold',
-    location: 'Каминная зона',
-    category: 'fireplaces',
+    category: 'monuments',
     image: '/Xu7IjVfSZDiciekfaFKI_tTy_WJyH4oifiRoRb_Vae00ROrJj2dV85WhQrX2Lnab6oveSEXD2jl7-hmFeNPYE06l.jpg',
-    description: 'Облицовка стен и портала камина премиальным мрамором Calacatta Gold с симметричной раскладкой рисунка.'
   },
   {
     id: 9,
-    title: 'Ванная комната в едином камне Carrara White',
-    location: 'Ванная комната',
-    category: 'walls',
+    category: 'floors',
     image: '/dLa175nLC-wBLYnqodrOkRO_PbepBT6TdANZKoyQJZHOroe4RIdfn3oW9zM9VTwBhcy2Owwc95UtY6a_IQUhwu4Y.jpg',
-    description: 'Роскошная отделка ванной комнаты плитами из белого каррарского мрамора.'
   },
   {
     id: 10,
-    title: 'Мраморная лестница Calacatta',
-    location: 'Загородная резиденция',
     category: 'stairs',
     image: '/RF3R1W_Q8PM80tODsfb4h8pAGUfhqVgCb1kaOcsEgIM1jBDKRHCKMA9YvUvkM_W9_RK7bNsfXB6fu-WVYI4EMYA2.jpg',
-    description: 'Роскошная внутренняя лестница из белого мрамора с полированной отделкой. Сложные профили ступеней, бесшовная стыковка элементов и кованое ограждение.'
   },
   {
     id: 11,
-    title: 'Облицовка фасада и колонн серым гранитом',
-    location: 'Деловой центр',
-    category: 'walls',
+    category: 'cladding',
     image: '/RmPdbdYnkowiR5HIKJN4bNiLeS8OHk3swKFgPhLtB7pyEAZ3d-GOOVvdDyVbDdRKv1u506c84f85r_SJvaztv99Z.jpg',
-    description: 'Проект вентилируемого фасада первого уровня коммерческого здания из серого гранита. Включает облицовку стен плитами с рустом, пилястры и цоколь.'
   },
   {
     id: 12,
-    title: 'Входная группа со скульптурой льва',
-    location: 'Бизнес-центр',
-    category: 'walls',
+    category: 'monuments',
     image: '/6XnjB2luts8Ohw8RAjvWfuJFWCXFMWFQKtlFcgYOhfjbcw4mNScuqLMYQ6R_PDijYaGWTSYHikLtsVy_ANMttx1b.jpg',
-    description: 'Изготовление и установка классической скульптуры льва из светлого мрамора на гранитном постаменте перед главным входом в здание.'
   },
   {
     id: 13,
-    title: 'Мощение входной зоны и облицовка портала',
-    location: 'Офисный комплекс',
-    category: 'stairs',
+    category: 'cladding',
     image: '/c-PL41vcNbPYZR2cLPWZ_pbXAGrUfzwk9aoV-GhYAaIh6FUdtlaZ4KEjUuISnybXcSMbThBDrzYAkGR14RqVb7bj.jpg',
-    description: 'Благоустройство входной группы: мощение площадки гранитной брусчаткой, облицовка входного портала цельными блоками гранита и гранитные цветочницы.'
+  },
+  {
+    id: 14,
+    category: 'fireplaces',
+    image: '/portfolio-fireplace-classic.jpg',
+  },
+  {
+    id: 15,
+    category: 'cladding',
+    image: '/portfolio-stone-wall-installation.jpg',
   }
 ];
 
 export const Hub: React.FC<HubProps> = ({ setView }) => {
   // Portfolio states
   const [lightboxProject, setLightboxProject] = useState<PortfolioItem | null>(null);
+  const [portfolioFilter, setPortfolioFilter] = useState<PortfolioFilter>('all');
+
+  const filteredPortfolioItems = portfolioFilter === 'all'
+    ? portfolioItems
+    : portfolioItems.filter((item) => item.category === portfolioFilter);
 
   // Quiz states
   const [quizStep, setQuizStep] = useState(1);
@@ -245,7 +230,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           <div className="gateway-card" onClick={() => setView('catalog')}>
             <div 
               className="gateway-bg" 
-              style={{ backgroundImage: 'url(/gateway-gallery.jpg)' }}
+              style={{ backgroundImage: 'url(/gateway-gallery-quarry.webp)' }}
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
@@ -475,21 +460,40 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       <section className="portfolio-masonry-section">
         <div className="container">
           <div className="section-title-wrap text-center">
-            <span className="section-tag">Идеи и материалы</span>
-            <h2 className="section-title">Камень в интерьере</h2>
+            <span className="section-tag">Реализованные проекты</span>
+            <h2 className="section-title">Портфолио работ</h2>
             <div className="accent-line" />
+            <p className="portfolio-intro">
+              Выберите категорию, чтобы посмотреть интересующий тип изделий и отделки.
+            </p>
           </div>
 
-          {/* Grid gallery - Uniform Aspect Ratio, NO GAPS */}
-          <div className="masonry-gallery">
-            {portfolioItems.map(item => (
-              <div 
+          <div className="portfolio-tabs" role="tablist" aria-label="Категории портфолио">
+            {portfolioCategories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                role="tab"
+                aria-selected={portfolioFilter === category.id}
+                className={`portfolio-tab-btn ${portfolioFilter === category.id ? 'active' : ''}`}
+                onClick={() => setPortfolioFilter(category.id)}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="masonry-gallery" aria-live="polite">
+            {filteredPortfolioItems.map(item => (
+              <button
+                type="button"
                 key={item.id} 
                 className="masonry-gallery-item"
                 onClick={() => setLightboxProject(item)}
+                aria-label={`Открыть фотографию из портфолио, номер ${item.id}`}
               >
-                <img src={item.image} alt={item.title} className="masonry-image" />
-              </div>
+                <img src={item.image} alt="" className="masonry-image" />
+              </button>
             ))}
           </div>
         </div>
@@ -497,12 +501,23 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
 
       {/* Lightbox Modal Popup */}
       {lightboxProject && createPortal(
-        <div className="portfolio-lightbox" onClick={() => setLightboxProject(null)}>
+        <div
+          className="portfolio-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Фотография работы из портфолио"
+          onClick={() => setLightboxProject(null)}
+        >
           <div className="lightbox-content-image-only" onClick={(e) => e.stopPropagation()}>
-            <button className="lightbox-close-btn" onClick={() => setLightboxProject(null)}>
+            <button
+              type="button"
+              className="lightbox-close-btn"
+              onClick={() => setLightboxProject(null)}
+              aria-label="Закрыть фотографию"
+            >
               <X size={20} />
             </button>
-            <img src={lightboxProject.image} alt={lightboxProject.title} className="lightbox-only-image" />
+            <img src={lightboxProject.image} alt="" className="lightbox-only-image" />
           </div>
         </div>,
         document.body
@@ -604,11 +619,11 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           align-items: center;
           padding-top: 140px;
           padding-bottom: 100px;
-          background: radial-gradient(circle at 80% 20%, rgba(197, 168, 128, 0.08) 0%, rgba(15, 16, 18, 0) 60%),
-                      linear-gradient(180deg, rgba(15, 16, 18, 0.4) 0%, rgba(15, 16, 18, 0.95) 100%),
-                      url('/hero-bg.jpg');
+          background: radial-gradient(ellipse at 50% 42%, rgba(11, 12, 14, 0.34) 0%, rgba(11, 12, 14, 0.16) 56%, rgba(11, 12, 14, 0.04) 78%),
+                      linear-gradient(180deg, rgba(11, 12, 14, 0.05) 0%, rgba(11, 12, 14, 0.22) 58%, rgba(11, 12, 14, 0.76) 100%),
+                      url('/hero-house-stone.webp');
           background-size: cover;
-          background-position: center;
+          background-position: center 52%;
           overflow: hidden;
         }
 
@@ -641,8 +656,8 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           align-items: center;
           gap: 8px;
           padding: 8px 18px;
-          background-color: rgba(197, 168, 128, 0.08);
-          border: 1px solid rgba(197, 168, 128, 0.25);
+          background-color: rgba(15, 16, 18, 0.32);
+          border: 1px solid rgba(197, 168, 128, 0.5);
           backdrop-filter: blur(8px);
           font-size: 0.75rem;
           font-weight: 500;
@@ -663,16 +678,29 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           margin-bottom: 25px;
           color: #ffffff;
           font-weight: 300;
+          text-shadow: 0 3px 28px rgba(0, 0, 0, 0.55);
+        }
+
+        .hero-title .gradient-text {
+          background: linear-gradient(135deg, #ffffff 30%, var(--color-accent-gold) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .hero-title .text-gold {
+          color: var(--color-accent-gold);
         }
 
         .hero-description {
           max-width: 800px;
           font-size: 1.1rem;
           line-height: 1.8;
-          color: var(--color-text-dark-muted);
+          color: rgba(255, 255, 255, 0.88);
           font-weight: 300;
           letter-spacing: 0.03em;
           margin-bottom: 45px;
+          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
         }
 
         .hero-actions {
@@ -691,11 +719,24 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           gap: 10px;
         }
 
+        .hero-intro .btn-gold {
+          color: var(--color-accent-gold);
+          border-color: rgba(197, 168, 128, 0.78);
+          background-color: rgba(15, 16, 18, 0.18);
+          backdrop-filter: blur(8px);
+        }
+
+        .hero-intro .btn-gold:hover {
+          color: #121212;
+          border-color: var(--color-accent-gold);
+        }
+
         @media (max-width: 600px) {
           .hero-intro {
             min-height: 100svh;
             padding-top: 120px;
             padding-bottom: 70px;
+            background-position: 36% 52%;
           }
 
           .hero-badge {
@@ -1545,14 +1586,27 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           background-color: var(--color-bg-dark);
         }
 
+        .portfolio-masonry-section .section-title-wrap {
+          text-align: center;
+        }
+
         .portfolio-tabs {
           display: flex;
           justify-content: center;
           align-items: center;
           gap: 12px;
           flex-wrap: wrap;
-          margin-top: 40px;
+          margin-top: 32px;
           margin-bottom: 30px;
+        }
+
+        .portfolio-intro {
+          max-width: 620px;
+          margin: 22px auto 0;
+          color: var(--color-text-dark-muted);
+          font-size: 0.95rem;
+          line-height: 1.7;
+          font-weight: 300;
         }
 
         .portfolio-tab-btn {
@@ -1603,9 +1657,12 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           position: relative;
           overflow: hidden;
           aspect-ratio: 16 / 11;
+          padding: 0;
+          background: #121316;
           border: 1px solid rgba(255, 255, 255, 0.03);
           cursor: pointer;
           transition: var(--transition-smooth);
+          text-align: left;
         }
 
         .masonry-gallery-item:hover {
@@ -1620,62 +1677,8 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .masonry-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to top, rgba(15,16,18,0.95) 15%, rgba(15,16,18,0.3) 100%);
-          opacity: 0;
-          display: flex;
-          align-items: flex-end;
-          padding: 24px;
-          transition: var(--transition-fast);
-        }
-
         .masonry-gallery-item:hover .masonry-image {
           transform: scale(1.05);
-        }
-
-        .masonry-gallery-item:hover .masonry-overlay {
-          opacity: 1;
-        }
-
-        .masonry-overlay-content {
-          transform: translateY(15px);
-          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-          width: 100%;
-        }
-
-        .masonry-gallery-item:hover .masonry-overlay-content {
-          transform: translateY(0);
-        }
-
-        .masonry-location {
-          font-size: 0.7rem;
-          color: var(--color-accent-gold);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-bottom: 6px;
-          display: block;
-        }
-
-        .masonry-title {
-          font-size: 1.1rem;
-          color: #ffffff;
-          font-family: var(--font-serif);
-          font-weight: 400;
-          margin-bottom: 8px;
-          line-height: 1.3;
-        }
-
-        .masonry-more-link {
-          font-size: 0.75rem;
-          color: var(--color-accent-gold);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          font-weight: 500;
         }
 
         /* Lightbox Modal CSS */
