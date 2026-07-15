@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "import:marble": "node scripts/import-venezia-marble.mjs",
+    "import:quartzite": "node scripts/import-venezia-quartzite.mjs",
+    "import:oniks": "node scripts/import-venezia-oniks.mjs",
+    "import:travertin": "node scripts/import-venezia-travertin.mjs",
+    "import:labradorite": "node scripts/import-venezia-labradorite.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

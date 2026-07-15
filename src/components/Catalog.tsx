@@ -6,7 +6,7 @@ interface CatalogProps {
   setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
 }
 
-type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'песчаник' | 'известняк';
+type StoneTypeFilter = 'all' | 'мрамор' | 'гранит' | 'кварцит' | 'оникс' | 'травертин' | 'лабрадорит' | 'песчаник' | 'известняк';
 type ColorFilter = 'all' | 'белый' | 'черный' | 'зеленый' | 'синий' | 'бежевый' | 'серый' | 'коричневый' | 'красный' | 'желтый' | 'розовый';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'rarity';
 const CATALOG_PAGE_SIZE = 24;
@@ -167,7 +167,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
             <div className="sidebar-section">
               <h3 className="filter-title">Тип камня</h3>
               <div className="filter-options">
-                {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
+                {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
                   <button 
                     key={type}
                     className={`filter-btn ${selectedType === type ? 'active' : ''}`}
@@ -304,7 +304,7 @@ export const Catalog: React.FC<CatalogProps> = ({ setView }) => {
               <div className="drawer-section">
                 <h4>Тип камня</h4>
                 <div className="drawer-flex-options">
-                  {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
+                  {(['all', 'мрамор', 'гранит', 'кварцит', 'оникс', 'травертин', 'лабрадорит', 'песчаник', 'известняк'] as StoneTypeFilter[]).map(type => (
                     <button 
                       key={type}
                       className={`drawer-option-btn ${selectedType === type ? 'active' : ''}`}
