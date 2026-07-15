@@ -355,7 +355,7 @@ const products = detailedListings.map(({ listing, detail, surfaces, thicknesses 
     color: normalizeColors(detail),
     origin: country,
     price: Number.isFinite(price) ? price : 0,
-    image: failedImageSlugs.has(slug) ? '/Koelga.jpg' : `/venezia-marble/${slug}.webp`,
+    image: failedImageSlugs.has(slug) ? '/stone-placeholder.webp' : `/venezia-marble/${slug}.webp`,
     description: shortenDescription(sourceDescription) || createFallbackDescription(detail.name, rawColors, finishing),
     thickness: availableThicknesses.length ? availableThicknesses : ['20 мм'],
     inStock,

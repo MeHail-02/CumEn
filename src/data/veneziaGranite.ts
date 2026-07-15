@@ -986,7 +986,7 @@ export const veneziaGraniteData: Stone[] = [
     "color": "розовый",
     "origin": "Китай",
     "price": 4984,
-    "image": "/venezia-granite/rose-pink.webp",
+    "image": "/stone-placeholder.webp",
     "description": "",
     "thickness": [
       "20 мм",
@@ -5963,7 +5963,7 @@ export const veneziaGraniteData: Stone[] = [
     "color": "зеленый",
     "origin": "Китай",
     "price": 0,
-    "image": "/venezia-granite/galaxy-green.webp",
+    "image": "/stone-placeholder.webp",
     "description": "",
     "thickness": [
       "20 мм"
