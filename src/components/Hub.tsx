@@ -114,7 +114,52 @@ const portfolioItems: PortfolioItem[] = [
     id: 15,
     category: 'cladding',
     image: '/portfolio-stone-wall-installation.jpg',
-  }
+  },
+  {
+    id: 16,
+    category: 'stairs',
+    image: '/portfolio/marble-staircase-landing.jpg',
+  },
+  {
+    id: 17,
+    category: 'floors',
+    image: '/portfolio/marble-bathroom-vanity.jpg',
+  },
+  {
+    id: 18,
+    category: 'stairs',
+    image: '/portfolio/curved-marble-staircase.jpg',
+  },
+  {
+    id: 19,
+    category: 'cladding',
+    image: '/portfolio/marble-bathroom-doorway.jpg',
+  },
+  {
+    id: 20,
+    category: 'cladding',
+    image: '/portfolio/marble-bathroom-panels.jpg',
+  },
+  {
+    id: 21,
+    category: 'stairs',
+    image: '/portfolio/spiral-marble-staircase.jpg',
+  },
+  {
+    id: 22,
+    category: 'floors',
+    image: '/portfolio/marble-bathroom-floor.jpg',
+  },
+  {
+    id: 23,
+    category: 'stairs',
+    image: '/portfolio/marble-staircase-balustrade.jpg',
+  },
+  {
+    id: 24,
+    category: 'cladding',
+    image: '/portfolio/marble-wall-panels.jpg',
+  },
 ];
 
 export const Hub: React.FC<HubProps> = ({ setView }) => {
@@ -482,6 +527,10 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               </button>
             ))}
           </div>
+
+          <p className="portfolio-mobile-hint" aria-hidden="true">
+            {filteredPortfolioItems.length} фото · листайте вбок →
+          </p>
 
           <div className="masonry-gallery" aria-live="polite">
             {filteredPortfolioItems.map(item => (
@@ -1609,6 +1658,10 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           font-weight: 300;
         }
 
+        .portfolio-mobile-hint {
+          display: none;
+        }
+
         .portfolio-tab-btn {
           padding: 10px 20px;
           background-color: rgba(255, 255, 255, 0.02);
@@ -1647,9 +1700,52 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+          .portfolio-masonry-section {
+            padding: 60px 0;
+          }
+
+          .portfolio-tabs {
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            margin: 24px -20px 18px;
+            padding: 0 20px 8px;
+            scrollbar-width: none;
+          }
+
+          .portfolio-tabs::-webkit-scrollbar,
+          .masonry-gallery::-webkit-scrollbar {
+            display: none;
+          }
+
+          .portfolio-tab-btn {
+            flex: 0 0 auto;
+          }
+
+          .portfolio-mobile-hint {
+            display: block;
+            margin-bottom: 12px;
+            color: var(--color-accent-gold);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          }
+
           .masonry-gallery {
-            grid-template-columns: 1fr;
+            grid-template-columns: none;
+            grid-auto-flow: column;
+            grid-auto-columns: min(82vw, 340px);
+            gap: 14px;
+            margin: 0 -20px;
+            padding: 0 20px 14px;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            scroll-snap-type: inline mandatory;
+          }
+
+          .masonry-gallery-item {
+            scroll-snap-align: start;
           }
         }
 
