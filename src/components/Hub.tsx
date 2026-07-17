@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   ArrowRight, 
@@ -17,11 +17,15 @@ import {
   Send,
   CheckCircle
 } from 'lucide-react';
-import { stonesData } from '../data/catalog';
-import type { Stone } from '../data/stones';
+import { CATALOG_TOTAL_COUNT, featuredStones, loadCatalogStones } from '../data/featuredStones';
+import type { Stone } from '../data/stone';
+import { StoneImage } from './StoneImage';
+import { createPath, type Navigate, type ViewState } from '../routing';
+import { useModalDialog } from '../hooks/useModalDialog';
+import '../styles/Hub.css';
 
 interface HubProps {
-  setView: (view: 'hub' | 'catalog' | 'detail' | 'services', stoneId?: string | null) => void;
+  setView: Navigate;
 }
 
 type PortfolioCategory = 'cladding' | 'stairs' | 'floors' | 'monuments' | 'fireplaces';
@@ -211,6 +215,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
   const [quizPalette, setQuizPalette] = useState<QuizPalette | null>(null);
   const [quizBudget, setQuizBudget] = useState<QuizBudget | null>(null);
   const [quizResults, setQuizResults] = useState<Stone[]>([]);
+  const [quizLoading, setQuizLoading] = useState(false);
 
   // Product quote form states
   const [quoteName, setQuoteName] = useState('');
@@ -219,18 +224,20 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
   const [quoteDetails, setQuoteDetails] = useState('');
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
 
-  // Featured stones subset
-  const featuredStoneIds = [
-    'venezia-quartzite-cristallo-blue',
-    'venezia-marble-white-beauty',
-    'venezia-marble-green-abbey',
-    'venezia-oniks-onice-nero-passion',
-  ];
-  const featuredStones = featuredStoneIds
-    .map(id => stonesData.find(stone => stone.id === id))
-    .filter((stone): stone is Stone => stone !== undefined);
+  const handleInternalLink = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    view: ViewState,
+    stoneId: string | null = null,
+  ) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    setView(view, stoneId);
+  };
 
-  const getQuizMatches = (useCase: QuizUseCase, palette: QuizPalette, budget: QuizBudget) => {
+  const closeLightbox = useCallback(() => setLightboxProject(null), []);
+  const lightboxRef = useModalDialog<HTMLDivElement>(Boolean(lightboxProject), closeLightbox);
+
+  const getQuizMatches = (stones: Stone[], useCase: QuizUseCase, palette: QuizPalette, budget: QuizBudget) => {
     const preferredTypes = quizStoneTypes[useCase];
     const preferredColors = quizPaletteColors[palette];
 
@@ -248,7 +255,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       return stone.price > 50000;
     };
 
-    return stonesData
+    return stones
       .filter((stone) => preferredTypes.includes(stone.type) && matchesPalette(stone) && matchesBudget(stone))
       .sort((first, second) => {
         if (first.inStock !== second.inStock) return first.inStock ? -1 : 1;
@@ -265,6 +272,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
   const handleUseCaseSelect = (useCase: QuizUseCase) => {
     setQuizUseCase(useCase);
     setQuizStep(2);
+    void loadCatalogStones();
   };
 
   const handlePaletteSelect = (palette: QuizPalette) => {
@@ -272,11 +280,17 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
     setQuizStep(3);
   };
 
-  const handleBudgetSelect = (budget: QuizBudget) => {
+  const handleBudgetSelect = async (budget: QuizBudget) => {
     if (!quizUseCase || !quizPalette) return;
     setQuizBudget(budget);
-    setQuizResults(getQuizMatches(quizUseCase, quizPalette, budget));
-    setQuizStep(4);
+    setQuizLoading(true);
+    try {
+      const stones = await loadCatalogStones();
+      setQuizResults(getQuizMatches(stones, quizUseCase, quizPalette, budget));
+      setQuizStep(4);
+    } finally {
+      setQuizLoading(false);
+    }
   };
 
   const resetQuiz = () => {
@@ -343,7 +357,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       <section className="gateway-section">
         <div className="gateway-grid">
           {/* Gateway 1: Stone Catalog */}
-          <div className="gateway-card" onClick={() => setView('catalog')}>
+          <a className="gateway-card" href={createPath('catalog')} onClick={(event) => handleInternalLink(event, 'catalog')}>
             <div 
               className="gateway-bg" 
               style={{ backgroundImage: 'url(/gateway-gallery-quarry.webp)' }}
@@ -360,13 +374,13 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               </span>
             </div>
             <div className="card-border-effect" />
-          </div>
+          </a>
 
           {/* Gateway 2: Services / Production */}
-          <div className="gateway-card" onClick={() => setView('services')}>
+          <a className="gateway-card" href={createPath('services')} onClick={(event) => handleInternalLink(event, 'services')}>
             <div 
               className="gateway-bg" 
-              style={{ backgroundImage: 'url(/services-hero-v2.png)' }}
+              style={{ backgroundImage: 'url(/service-installation.webp)' }}
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
@@ -380,7 +394,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               </span>
             </div>
             <div className="card-border-effect" />
-          </div>
+          </a>
         </div>
       </section>
 
@@ -393,20 +407,21 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               <h2 className="section-title">Редкие сорта на складе</h2>
             </div>
             <button className="btn-gold" onClick={() => setView('catalog')}>
-              Смотреть весь каталог ({stonesData.length} сортов)
+              Смотреть весь каталог ({CATALOG_TOTAL_COUNT} сортов)
             </button>
           </div>
           <div className="accent-line" style={{ margin: '20px 0 40px 0' }} />
 
           <div className="featured-stones-grid">
             {featuredStones.map((stone) => (
-              <div 
-                key={stone.id} 
+              <a
+                key={stone.id}
                 className="featured-stone-card"
-                onClick={() => setView('detail', stone.id)}
+                href={createPath('detail', stone.id)}
+                onClick={(event) => handleInternalLink(event, 'detail', stone.id)}
               >
                 <div className="stone-card-img-wrapper">
-                  <img src={stone.image} alt={stone.name} className="stone-card-image" />
+                  <StoneImage src={stone.image} alt={stone.name} className="stone-card-image" loading="lazy" />
                   <div className="stone-card-badge">{stone.rarity}</div>
                   <div className="stone-card-hover-overlay">
                     <span className="hover-view-btn">
@@ -425,7 +440,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                     <span className="stone-more">Детали <ChevronRight size={14} /></span>
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -534,10 +549,10 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                     <h3>На какой бюджет по материалу ориентироваться?</h3>
                   </div>
                   <div className="selector-options-grid budget-options">
-                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('any')}><span><strong>Бюджет не определен</strong><small>Покажем варианты разных ценовых категорий</small></span><ChevronRight size={17} /></button>
-                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('value')}><span><strong>До 15 000 ₽/м²</strong><small>Практичные решения и российские породы</small></span><ChevronRight size={17} /></button>
-                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('balanced')}><span><strong>15 000–50 000 ₽/м²</strong><small>Широкий выбор импортных материалов</small></span><ChevronRight size={17} /></button>
-                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('premium')}><span><strong>От 50 000 ₽/м²</strong><small>Редкие и коллекционные сорта</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" disabled={quizLoading} onClick={() => void handleBudgetSelect('any')}><span><strong>Бюджет не определен</strong><small>Покажем варианты разных ценовых категорий</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" disabled={quizLoading} onClick={() => void handleBudgetSelect('value')}><span><strong>До 15 000 ₽/м²</strong><small>Практичные решения и российские породы</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" disabled={quizLoading} onClick={() => void handleBudgetSelect('balanced')}><span><strong>15 000–50 000 ₽/м²</strong><small>Широкий выбор импортных материалов</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" disabled={quizLoading} onClick={() => void handleBudgetSelect('premium')}><span><strong>От 50 000 ₽/м²</strong><small>Редкие и коллекционные сорта</small></span><ChevronRight size={17} /></button>
                   </div>
                   <button type="button" className="selector-back" onClick={() => setQuizStep(2)}><ArrowLeft size={15} /> Назад</button>
                 </div>
@@ -557,7 +572,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                     <div className="selector-results-grid">
                       {quizResults.map((stone) => (
                         <button key={stone.id} type="button" className="selector-result-card" onClick={() => setView('detail', stone.id)}>
-                          <img src={stone.image} alt="" />
+                          <StoneImage src={stone.image} alt="" loading="lazy" />
                           <span className="selector-result-content">
                             <small>{stone.type} · {stone.origin}</small>
                             <strong>{stone.name}</strong>
@@ -595,13 +610,12 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             </p>
           </div>
 
-          <div className="portfolio-tabs" role="tablist" aria-label="Категории портфолио">
+          <div className="portfolio-tabs" role="group" aria-label="Категории портфолио">
             {portfolioCategories.map((category) => (
               <button
                 key={category.id}
                 type="button"
-                role="tab"
-                aria-selected={portfolioFilter === category.id}
+                aria-pressed={portfolioFilter === category.id}
                 className={`portfolio-tab-btn ${portfolioFilter === category.id ? 'active' : ''}`}
                 onClick={() => setPortfolioFilter(category.id)}
               >
@@ -623,7 +637,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                 onClick={() => setLightboxProject(item)}
                 aria-label={`Открыть фотографию из портфолио, номер ${item.id}`}
               >
-                <img src={item.image} alt="" className="masonry-image" />
+                <StoneImage src={item.image} alt="" className="masonry-image" loading="lazy" />
               </button>
             ))}
           </div>
@@ -633,22 +647,24 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       {/* Lightbox Modal Popup */}
       {lightboxProject && createPortal(
         <div
+          ref={lightboxRef}
           className="portfolio-lightbox"
           role="dialog"
           aria-modal="true"
           aria-label="Фотография работы из портфолио"
-          onClick={() => setLightboxProject(null)}
+          onClick={closeLightbox}
+          tabIndex={-1}
         >
           <div className="lightbox-content-image-only" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               className="lightbox-close-btn"
-              onClick={() => setLightboxProject(null)}
+              onClick={closeLightbox}
               aria-label="Закрыть фотографию"
             >
               <X size={20} />
             </button>
-            <img src={lightboxProject.image} alt="" className="lightbox-only-image" />
+            <StoneImage src={lightboxProject.image} alt={`Фотография проекта №${lightboxProject.id}`} className="lightbox-only-image" />
           </div>
         </div>,
         document.body
@@ -824,1509 +840,6 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
       </section>
 
       {/* Styles for Hub page */}
-      <style>{`
-        .hub-page {
-          width: 100%;
-        }
-
-        .product-quote-section {
-          padding: 110px 0;
-          background:
-            radial-gradient(circle at 14% 22%, rgba(197, 168, 128, 0.09), transparent 34%),
-            var(--color-bg-dark);
-          border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .product-quote-wrapper {
-          display: grid;
-          grid-template-columns: 0.9fr 1.1fr;
-          background-color: var(--color-bg-card-dark);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
-        }
-
-        .product-quote-info,
-        .product-quote-form-column {
-          padding: 60px;
-        }
-
-        .product-quote-info {
-          border-right: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .product-quote-title {
-          color: #ffffff;
-          font-size: clamp(2rem, 4vw, 3rem);
-          line-height: 1.12;
-          margin: 14px 0 20px;
-        }
-
-        .product-quote-description {
-          color: var(--color-text-dark-muted);
-          font-size: 0.92rem;
-          line-height: 1.75;
-          margin-bottom: 34px;
-        }
-
-        .product-types-list {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-
-        .product-type-item {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          color: rgba(255, 255, 255, 0.88);
-          font-size: 0.88rem;
-        }
-
-        .product-type-item svg {
-          color: var(--color-accent-gold);
-          flex-shrink: 0;
-        }
-
-        .product-quote-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .product-form-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 20px;
-        }
-
-        .product-form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .product-form-group label {
-          color: var(--color-accent-gold);
-          font-size: 0.72rem;
-          font-weight: 500;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .product-form-group input,
-        .product-form-group textarea {
-          width: 100%;
-          padding: 13px 16px;
-          color: #ffffff;
-          font: inherit;
-          font-size: 0.85rem;
-          background-color: rgba(0, 0, 0, 0.16);
-          border: 1px solid rgba(255, 255, 255, 0.09);
-          outline: none;
-          transition: var(--transition-fast);
-          resize: vertical;
-        }
-
-        .product-form-group input:focus,
-        .product-form-group textarea:focus {
-          border-color: var(--color-accent-gold);
-          box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.07);
-        }
-
-        .product-quote-submit {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          align-self: flex-start;
-          min-width: 270px;
-        }
-
-        .product-quote-note {
-          color: var(--color-text-dark-muted);
-          font-size: 0.72rem;
-        }
-
-        .product-quote-success {
-          min-height: 330px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          color: var(--color-accent-gold);
-        }
-
-        .product-quote-success h3 {
-          color: #ffffff;
-          font-size: 1.8rem;
-          margin: 18px 0 10px;
-        }
-
-        .product-quote-success p {
-          max-width: 420px;
-          color: var(--color-text-dark-muted);
-          line-height: 1.6;
-        }
-
-        @media (max-width: 900px) {
-          .product-quote-wrapper {
-            grid-template-columns: 1fr;
-          }
-
-          .product-quote-info {
-            border-right: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          }
-        }
-
-        @media (max-width: 600px) {
-          .product-quote-section {
-            padding: 70px 0;
-          }
-
-          .product-quote-info,
-          .product-quote-form-column {
-            padding: 34px 22px;
-          }
-
-          .product-form-row {
-            grid-template-columns: 1fr;
-          }
-
-          .product-quote-submit {
-            width: 100%;
-            min-width: 0;
-          }
-        }
-
-        /* Gradient & Typography Utilities */
-        .gradient-text {
-          background: linear-gradient(135deg, #ffffff 30%, var(--color-accent-gold) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        /* Hero Section */
-        .hero-intro {
-          position: relative;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          padding-top: 140px;
-          padding-bottom: 100px;
-          background: radial-gradient(ellipse at 50% 42%, rgba(11, 12, 14, 0.34) 0%, rgba(11, 12, 14, 0.16) 56%, rgba(11, 12, 14, 0.04) 78%),
-                      linear-gradient(180deg, rgba(11, 12, 14, 0.05) 0%, rgba(11, 12, 14, 0.22) 58%, rgba(11, 12, 14, 0.76) 100%),
-                      url('/hero-house-stone.webp');
-          background-size: cover;
-          background-position: center 52%;
-          overflow: hidden;
-        }
-
-        .hero-grid-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-image: 
-            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-          background-size: 80px 80px;
-          background-position: center;
-          pointer-events: none;
-          z-index: 1;
-        }
-
-        .hero-content-wrapper {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 18px;
-          background-color: rgba(15, 16, 18, 0.32);
-          border: 1px solid rgba(197, 168, 128, 0.5);
-          backdrop-filter: blur(8px);
-          font-size: 0.75rem;
-          font-weight: 500;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: var(--color-accent-gold);
-          margin-bottom: 30px;
-          border-radius: 40px;
-        }
-
-        .hero-badge-icon {
-          animation: spin-slow 8s linear infinite;
-        }
-
-        .hero-title {
-          font-size: clamp(2.8rem, 6vw, 4.8rem);
-          line-height: 1.1;
-          margin-bottom: 25px;
-          color: #ffffff;
-          font-weight: 300;
-          text-shadow: 0 3px 28px rgba(0, 0, 0, 0.55);
-        }
-
-        .hero-title .gradient-text {
-          background: linear-gradient(135deg, #ffffff 30%, var(--color-accent-gold) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .hero-title .text-gold {
-          color: var(--color-accent-gold);
-        }
-
-        .hero-description {
-          max-width: 800px;
-          font-size: 1.1rem;
-          line-height: 1.8;
-          color: rgba(255, 255, 255, 0.88);
-          font-weight: 300;
-          letter-spacing: 0.03em;
-          margin-bottom: 45px;
-          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero-actions {
-          display: flex;
-          gap: 20px;
-          flex-wrap: wrap;
-          justify-content: center;
-          margin-bottom: 60px;
-        }
-
-        .hero-btn {
-          min-width: 220px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-
-        .hero-intro .btn-gold {
-          color: var(--color-accent-gold);
-          border-color: rgba(197, 168, 128, 0.78);
-          background-color: rgba(15, 16, 18, 0.18);
-          backdrop-filter: blur(8px);
-        }
-
-        .hero-intro .btn-gold:hover {
-          color: #121212;
-          border-color: var(--color-accent-gold);
-        }
-
-        @media (max-width: 600px) {
-          .hero-intro {
-            min-height: 100svh;
-            padding-top: 120px;
-            padding-bottom: 70px;
-            background-position: 36% 52%;
-          }
-
-          .hero-badge {
-            max-width: 100%;
-            justify-content: center;
-            padding: 8px 12px;
-            font-size: 0.62rem;
-            line-height: 1.5;
-            letter-spacing: 0.1em;
-            text-align: center;
-          }
-
-          .hero-title {
-            width: 100%;
-            font-size: clamp(2.2rem, 11vw, 3rem);
-          }
-
-          .hero-description {
-            width: 100%;
-            margin-bottom: 32px;
-            font-size: 0.9rem;
-            line-height: 1.65;
-          }
-
-          .hero-actions {
-            width: 100%;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 40px;
-          }
-
-          .hero-btn {
-            width: 100%;
-            min-width: 0;
-          }
-        }
-
-        .hero-scrolldown {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          opacity: 0.7;
-          transition: opacity 0.3s ease;
-          cursor: pointer;
-        }
-
-        .hero-scrolldown:hover {
-          opacity: 1;
-        }
-
-        .scrolldown-text {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.25em;
-          color: var(--color-text-dark-muted);
-        }
-
-        .scrolldown-mouse {
-          width: 24px;
-          height: 40px;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 12px;
-          position: relative;
-        }
-
-        .scrolldown-wheel {
-          width: 4px;
-          height: 8px;
-          background-color: var(--color-accent-gold);
-          border-radius: 2px;
-          position: absolute;
-          top: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          animation: scroll-wheel 1.6s ease-out infinite;
-        }
-
-        /* Split Gateways Section */
-        .gateway-section {
-          padding: 0;
-          margin-top: -1px; /* Align nicely with hero background */
-        }
-
-        .gateway-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          min-height: 60vh;
-          width: 100%;
-          gap: 1px;
-          background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        @media (max-width: 900px) {
-          .gateway-grid {
-            grid-template-columns: 1fr;
-            min-height: auto;
-          }
-        }
-
-        .gateway-card {
-          position: relative;
-          display: flex;
-          align-items: flex-end;
-          padding: 80px;
-          cursor: pointer;
-          overflow: hidden;
-          transition: var(--transition-smooth);
-        }
-
-        @media (max-width: 600px) {
-          .gateway-card {
-            padding: 50px 24px;
-          }
-        }
-
-        .gateway-bg {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-size: cover;
-          background-position: center;
-          transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-          z-index: 1;
-        }
-
-        .gateway-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to top, rgba(15, 16, 18, 0.95) 15%, rgba(15, 16, 18, 0.6) 50%, rgba(15, 16, 18, 0.2) 100%);
-          z-index: 2;
-          transition: var(--transition-smooth);
-        }
-
-        .gateway-content {
-          position: relative;
-          z-index: 3;
-          max-width: 500px;
-          transform: translateY(15px);
-          transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .gateway-tag {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-accent-gold);
-          font-weight: 500;
-          margin-bottom: 12px;
-          display: block;
-        }
-
-        .gateway-title {
-          font-size: 2.2rem;
-          color: #ffffff;
-          margin-bottom: 16px;
-        }
-
-        .gateway-desc {
-          font-size: 0.95rem;
-          line-height: 1.6;
-          color: var(--color-text-dark-muted);
-          margin-bottom: 24px;
-          transition: color 0.3s ease;
-        }
-
-        .gateway-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.85rem;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-accent-gold);
-          font-weight: 600;
-        }
-
-        .btn-arrow {
-          transition: transform 0.3s ease;
-        }
-
-        .card-border-effect {
-          position: absolute;
-          top: 30px;
-          left: 30px;
-          right: 30px;
-          bottom: 30px;
-          border: 1px solid rgba(197, 168, 128, 0);
-          pointer-events: none;
-          z-index: 4;
-          transition: var(--transition-smooth);
-        }
-
-        /* Hover interactions for gateways */
-        .gateway-card:hover .gateway-bg {
-          transform: scale(1.06);
-        }
-
-        .gateway-card:hover .gateway-overlay {
-          background: linear-gradient(to top, rgba(15, 16, 18, 0.98) 15%, rgba(15, 16, 18, 0.7) 50%, rgba(15, 16, 18, 0.3) 100%);
-        }
-
-        .gateway-card:hover .gateway-content {
-          transform: translateY(0);
-        }
-
-        .gateway-card:hover .gateway-desc {
-          color: #ffffff;
-        }
-
-        .gateway-card:hover .btn-arrow {
-          transform: translateX(6px);
-        }
-
-        .gateway-card:hover .card-border-effect {
-          border-color: rgba(197, 168, 128, 0.2);
-          top: 40px;
-          left: 40px;
-          right: 40px;
-          bottom: 40px;
-        }
-
-        /* General Section Header styling */
-        .section-header {
-          max-width: 800px;
-          margin: 0 auto 60px;
-        }
-
-        .section-tag {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: var(--color-accent-gold);
-          margin-bottom: 12px;
-          display: block;
-          font-weight: 500;
-        }
-
-        .section-title {
-          font-size: clamp(1.8rem, 4vw, 2.6rem);
-          color: #ffffff;
-          margin-bottom: 20px;
-        }
-
-        .section-subtitle-text {
-          font-size: 0.95rem;
-          line-height: 1.7;
-          color: var(--color-text-dark-muted);
-          font-weight: 300;
-          margin-top: 15px;
-        }
-
-        .accent-line {
-          width: 50px;
-          height: 1px;
-          background-color: var(--color-accent-gold);
-          margin: 0 auto;
-        }
-
-        /* Featured Slabs Section */
-        .featured-slabs-section {
-          background-color: var(--color-bg-dark);
-        }
-
-        .featured-flex-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          flex-wrap: wrap;
-          gap: 20px;
-        }
-
-        .featured-stones-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 30px;
-        }
-
-        .featured-stone-card {
-          background-color: var(--color-bg-card-dark);
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          cursor: pointer;
-          transition: var(--transition-smooth);
-          position: relative;
-        }
-
-        .featured-stone-card:hover {
-          transform: translateY(-8px);
-          border-color: var(--color-accent-gold-border);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-        }
-
-        .stone-card-img-wrapper {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 4/3;
-          overflow: hidden;
-        }
-
-        .stone-card-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.8s ease;
-        }
-
-        .featured-stone-card:hover .stone-card-image {
-          transform: scale(1.05);
-        }
-
-        .stone-card-badge {
-          position: absolute;
-          top: 15px;
-          left: 15px;
-          padding: 4px 10px;
-          background-color: rgba(197, 168, 128, 0.9);
-          color: #121212;
-          font-size: 0.7rem;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          z-index: 2;
-        }
-
-        .stone-card-hover-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(15, 16, 18, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: 3;
-        }
-
-        .featured-stone-card:hover .stone-card-hover-overlay {
-          opacity: 1;
-        }
-
-        .hover-view-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          background-color: #ffffff;
-          color: #121212;
-          padding: 8px 16px;
-          font-weight: 500;
-          transform: translateY(10px);
-          transition: transform 0.3s ease;
-        }
-
-        .featured-stone-card:hover .hover-view-btn {
-          transform: translateY(0);
-        }
-
-        .stone-card-info {
-          padding: 24px;
-        }
-
-        .stone-card-meta {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .stone-type {
-          color: var(--color-accent-gold);
-          font-weight: 500;
-        }
-
-        .stone-origin {
-          color: var(--color-text-dark-muted);
-        }
-
-        .stone-name {
-          font-size: 1.15rem;
-          color: #ffffff;
-          margin-bottom: 16px;
-        }
-
-        .stone-card-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
-          padding-top: 16px;
-        }
-
-        .stone-price {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #ffffff;
-        }
-
-        .stone-more {
-          font-size: 0.8rem;
-          color: var(--color-accent-gold);
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          transition: transform 0.3s ease;
-        }
-
-        .featured-stone-card:hover .stone-more {
-          transform: translateX(4px);
-        }
-
-        /* Interactive stone selector */
-        .stone-selector-section {
-          background-color: #121316;
-        }
-
-        .stone-selector-card {
-          display: grid;
-          grid-template-columns: 0.78fr 1.22fr;
-          border: 1px solid rgba(197, 168, 128, 0.15);
-          background: linear-gradient(135deg, rgba(23, 24, 28, 0.8) 0%, rgba(15, 16, 18, 0.9) 100%);
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .selector-intro {
-          padding: 60px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .selector-title {
-          font-size: 2.2rem;
-          color: #ffffff;
-          margin: 14px 0 20px;
-        }
-
-        .selector-description {
-          font-size: 0.95rem;
-          line-height: 1.7;
-          color: var(--color-text-dark-muted);
-          font-weight: 300;
-          margin-bottom: 30px;
-        }
-
-        .selector-progress {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .selector-progress > span {
-          width: 30px;
-          height: 3px;
-          background-color: rgba(255, 255, 255, 0.1);
-          transition: var(--transition-fast);
-        }
-
-        .selector-progress > span.active {
-          background-color: var(--color-accent-gold);
-        }
-
-        .selector-progress small {
-          color: var(--color-text-dark-muted);
-          font-size: 0.68rem;
-          margin-left: 4px;
-        }
-
-        .selector-selections {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 26px;
-        }
-
-        .selector-selections span {
-          padding: 6px 9px;
-          color: var(--color-accent-gold);
-          font-size: 0.65rem;
-          background-color: rgba(197, 168, 128, 0.08);
-          border: 1px solid rgba(197, 168, 128, 0.18);
-        }
-
-        .selector-interactive {
-          padding: 48px;
-          min-height: 540px;
-          display: flex;
-          align-items: center;
-        }
-
-        .selector-step {
-          width: 100%;
-        }
-
-        .selector-step-heading {
-          display: flex;
-          align-items: baseline;
-          gap: 14px;
-          margin-bottom: 24px;
-        }
-
-        .selector-step-heading > span {
-          color: var(--color-accent-gold);
-          font-size: 0.68rem;
-          letter-spacing: 0.15em;
-        }
-
-        .selector-step-heading h3 {
-          color: #ffffff;
-          font-size: 1.35rem;
-        }
-
-        .selector-options-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 11px;
-        }
-
-        .selector-option {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: center;
-          gap: 14px;
-          min-height: 78px;
-          padding: 14px 16px;
-          color: #ffffff;
-          text-align: left;
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          cursor: pointer;
-          transition: var(--transition-fast);
-        }
-
-        .selector-option:hover {
-          border-color: var(--color-accent-gold-border);
-          background-color: rgba(197, 168, 128, 0.06);
-          transform: translateY(-2px);
-        }
-
-        .selector-option > span:not(.selector-option-icon):not(.palette-swatch) {
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .selector-option strong {
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .selector-option small {
-          color: var(--color-text-dark-muted);
-          font-size: 0.67rem;
-          line-height: 1.35;
-        }
-
-        .selector-option > svg {
-          color: var(--color-accent-gold);
-          opacity: 0.75;
-        }
-
-        .selector-option-icon {
-          width: 38px;
-          height: 38px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          color: var(--color-accent-gold);
-          background-color: rgba(197, 168, 128, 0.09);
-        }
-
-        .palette-options {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .palette-swatch {
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          flex-shrink: 0;
-        }
-
-        .palette-swatch.any {
-          background: conic-gradient(#e8e3d9, #b99972, #506b5a, #374e6b, #24252a, #e8e3d9);
-        }
-
-        .palette-swatch.light {
-          background: linear-gradient(135deg, #ffffff, #d8d2c6);
-        }
-
-        .palette-swatch.dark {
-          background: linear-gradient(135deg, #4b4c50, #090a0c);
-        }
-
-        .palette-swatch.warm {
-          background: linear-gradient(135deg, #e0bd86, #7e4c31);
-        }
-
-        .palette-swatch.green {
-          background: linear-gradient(135deg, #789077, #173f31);
-        }
-
-        .palette-swatch.blue {
-          background: linear-gradient(135deg, #8fb7c8, #203e66);
-        }
-
-        .palette-swatch.accent {
-          background: linear-gradient(135deg, #9b4046, #c59a4a 48%, #315d68);
-        }
-
-        .budget-options {
-          grid-template-columns: 1fr;
-        }
-
-        .budget-option {
-          min-height: 68px;
-          grid-template-columns: 1fr auto;
-        }
-
-        .selector-back,
-        .selector-reset {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          margin-top: 20px;
-          color: var(--color-text-dark-muted);
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          cursor: pointer;
-          transition: var(--transition-fast);
-        }
-
-        .selector-back:hover,
-        .selector-reset:hover {
-          color: #ffffff;
-        }
-
-        .stone-selector-card.showing-results {
-          grid-template-columns: 0.65fr 1.35fr;
-        }
-
-        .selector-results-heading {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          gap: 20px;
-          margin-bottom: 22px;
-        }
-
-        .selector-results-heading h3 {
-          color: #ffffff;
-          font-size: 1.45rem;
-          margin-top: 7px;
-        }
-
-        .selector-results-heading .selector-reset {
-          margin-top: 0;
-          flex-shrink: 0;
-        }
-
-        .selector-results-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-        }
-
-        .selector-result-card {
-          display: grid;
-          grid-template-columns: 86px 1fr;
-          min-width: 0;
-          min-height: 106px;
-          color: #ffffff;
-          text-align: left;
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          overflow: hidden;
-          transition: var(--transition-fast);
-        }
-
-        .selector-result-card:hover {
-          border-color: var(--color-accent-gold-border);
-          transform: translateY(-2px);
-        }
-
-        .selector-result-card > img {
-          width: 86px;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .selector-result-content {
-          min-width: 0;
-          padding: 13px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        .selector-result-content > small {
-          color: var(--color-accent-gold);
-          font-size: 0.59rem;
-          text-transform: uppercase;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .selector-result-content > strong {
-          font-family: var(--font-serif);
-          font-size: 0.9rem;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .selector-result-content > span {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 8px;
-          color: var(--color-text-dark-muted);
-          font-size: 0.65rem;
-          margin-top: auto;
-        }
-
-        .selector-result-content > span svg {
-          color: var(--color-accent-gold);
-        }
-
-        .selector-empty-result {
-          padding: 42px;
-          color: var(--color-text-dark-muted);
-          font-size: 0.85rem;
-          line-height: 1.6;
-          text-align: center;
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .selector-result-actions {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          margin-top: 22px;
-          flex-wrap: wrap;
-        }
-
-        .selector-result-actions a {
-          color: var(--color-accent-gold);
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          border-bottom: 1px solid rgba(197, 168, 128, 0.35);
-          padding-bottom: 3px;
-        }
-
-        @media (max-width: 900px) {
-          .stone-selector-card,
-          .stone-selector-card.showing-results {
-            grid-template-columns: 1fr;
-          }
-
-          .selector-intro {
-            padding: 40px;
-            border-right: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          }
-
-          .selector-interactive {
-            min-height: 0;
-            padding: 40px;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .selector-intro,
-          .selector-interactive {
-            padding: 30px 22px;
-          }
-
-          .selector-options-grid,
-          .palette-options,
-          .selector-results-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .selector-title {
-            font-size: 1.85rem;
-          }
-
-          .selector-results-heading {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-
-          .selector-result-actions {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-        }
-
-        /* Philosophy styling edits */
-        .philosophy-section {
-          background-color: var(--color-bg-dark);
-          position: relative;
-        }
-
-        .values-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 40px;
-        }
-
-        @media (max-width: 900px) {
-          .values-grid {
-            grid-template-columns: 1fr;
-            gap: 40px;
-          }
-        }
-
-        .value-item {
-          text-align: center;
-          padding: 40px 30px;
-          border: 1px solid rgba(255, 255, 255, 0.02);
-          background-color: rgba(23, 24, 28, 0.3);
-          transition: var(--transition-smooth);
-        }
-
-        .value-item:hover {
-          border-color: var(--color-accent-gold-border);
-          background-color: rgba(23, 24, 28, 0.7);
-          transform: translateY(-8px);
-        }
-
-        .value-icon-box {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          border: 1px solid rgba(197, 168, 128, 0.15);
-          color: var(--color-accent-gold);
-          margin-bottom: 24px;
-          background-color: rgba(197, 168, 128, 0.02);
-          transition: var(--transition-smooth);
-        }
-
-        .value-item:hover .value-icon-box {
-          border-color: var(--color-accent-gold);
-          background-color: rgba(197, 168, 128, 0.06);
-          box-shadow: 0 0 20px rgba(197, 168, 128, 0.15);
-        }
-
-        .value-title {
-          font-size: 1.25rem;
-          color: #ffffff;
-          margin-bottom: 16px;
-        }
-
-        .value-desc {
-          font-size: 0.88rem;
-          line-height: 1.7;
-          color: var(--color-text-dark-muted);
-          font-weight: 300;
-        }
-
-        /* Metrics / Counters Section */
-        .metrics-section {
-          background-color: #121316;
-          border-top: 1px solid rgba(255, 255, 255, 0.03);
-          padding: 80px 0;
-        }
-
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 30px;
-        }
-
-        @media (max-width: 1024px) {
-          .metrics-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .metrics-grid {
-            grid-template-columns: 1fr;
-            gap: 30px;
-          }
-        }
-
-        .metric-card {
-          text-align: center;
-          padding: 20px;
-        }
-
-        .metric-num {
-          font-family: var(--font-serif);
-          font-size: clamp(2.5rem, 5vw, 3.6rem);
-          line-height: 1;
-          margin-bottom: 12px;
-          font-weight: 300;
-        }
-
-        .metric-label {
-          font-size: 0.95rem;
-          font-weight: 500;
-          color: #ffffff;
-          margin-bottom: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .metric-desc {
-          font-size: 0.8rem;
-          line-height: 1.5;
-          color: var(--color-text-dark-muted);
-          font-weight: 300;
-        }
-
-        /* Portfolio Grid & Lightbox Section */
-        .portfolio-masonry-section {
-          padding: 100px 0;
-          background-color: var(--color-bg-dark);
-        }
-
-        .portfolio-masonry-section .section-title-wrap {
-          text-align: center;
-        }
-
-        .portfolio-tabs {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 12px;
-          flex-wrap: wrap;
-          margin-top: 32px;
-          margin-bottom: 30px;
-        }
-
-        .portfolio-intro {
-          max-width: 620px;
-          margin: 22px auto 0;
-          color: var(--color-text-dark-muted);
-          font-size: 0.95rem;
-          line-height: 1.7;
-          font-weight: 300;
-        }
-
-        .portfolio-mobile-hint {
-          display: none;
-        }
-
-        .portfolio-tab-btn {
-          padding: 10px 20px;
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.8rem;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          cursor: pointer;
-          transition: var(--transition-fast);
-        }
-
-        .portfolio-tab-btn:hover {
-          color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .portfolio-tab-btn.active {
-          background-color: var(--color-accent-gold);
-          border-color: var(--color-accent-gold);
-          color: #121212;
-          font-weight: 600;
-        }
-
-        .masonry-gallery {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
-          margin-top: 30px;
-        }
-
-        @media (max-width: 900px) {
-          .masonry-gallery {
-            grid-template-columns: 1fr 1fr;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .portfolio-masonry-section {
-            padding: 60px 0;
-          }
-
-          .portfolio-tabs {
-            justify-content: flex-start;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            margin: 24px -20px 18px;
-            padding: 0 20px 8px;
-            scrollbar-width: none;
-          }
-
-          .portfolio-tabs::-webkit-scrollbar,
-          .masonry-gallery::-webkit-scrollbar {
-            display: none;
-          }
-
-          .portfolio-tab-btn {
-            flex: 0 0 auto;
-          }
-
-          .portfolio-mobile-hint {
-            display: block;
-            margin-bottom: 12px;
-            color: var(--color-accent-gold);
-            font-size: 0.75rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-          }
-
-          .masonry-gallery {
-            grid-template-columns: none;
-            grid-auto-flow: column;
-            grid-auto-columns: min(82vw, 340px);
-            gap: 14px;
-            margin: 0 -20px;
-            padding: 0 20px 14px;
-            overflow-x: auto;
-            overscroll-behavior-inline: contain;
-            scroll-snap-type: inline mandatory;
-          }
-
-          .masonry-gallery-item {
-            scroll-snap-align: start;
-          }
-        }
-
-        .masonry-gallery-item {
-          position: relative;
-          overflow: hidden;
-          aspect-ratio: 16 / 11;
-          padding: 0;
-          background: #121316;
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          cursor: pointer;
-          transition: var(--transition-smooth);
-          text-align: left;
-        }
-
-        .masonry-gallery-item:hover {
-          border-color: var(--color-accent-gold-border);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .masonry-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .masonry-gallery-item:hover .masonry-image {
-          transform: scale(1.05);
-        }
-
-        /* Lightbox Modal CSS */
-        .portfolio-lightbox {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(11, 12, 13, 0.85);
-          backdrop-filter: blur(15px);
-          -webkit-backdrop-filter: blur(15px);
-          z-index: 2000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-          animation: fadeInOnly 0.3s ease-out;
-        }
-
-        .lightbox-content-image-only {
-          position: relative;
-          max-width: 90vw;
-          max-height: 90vh;
-          box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background-color: #0b0c0d;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-        }
-
-        .lightbox-only-image {
-          max-width: 100%;
-          max-height: 90vh;
-          object-fit: contain;
-          display: block;
-        }
-
-        .lightbox-close-btn {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          color: rgba(255, 255, 255, 0.8);
-          background-color: rgba(11, 12, 13, 0.5);
-          border: none;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: var(--transition-fast);
-          z-index: 10;
-        }
-
-        .lightbox-close-btn:hover {
-          color: #ffffff;
-          background-color: rgba(11, 12, 13, 0.8);
-          transform: scale(1.05);
-        }
-
-        /* Keyframes Animations */
-        @keyframes scroll-wheel {
-          0% { top: 8px; opacity: 1; }
-          50% { top: 22px; opacity: 0.3; }
-          100% { top: 8px; opacity: 1; }
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse-glow {
-          0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(197, 168, 128, 0.3)); }
-          100% { transform: scale(1.15); filter: drop-shadow(0 0 10px rgba(197, 168, 128, 0.8)); }
-        }
-
-        .animate-fade-in-down {
-          animation: fadeInDown 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-
-        .animate-fade-in-up {
-          animation: fadeInUp 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-
-        .animate-fade-in {
-          animation: fadeInOnly 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInOnly {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 };

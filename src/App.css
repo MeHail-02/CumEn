@@ -1,1 +1,24 @@
-/* Custom App layout and routing styling will be inherited from global index.css */
+.route-loading,
+.route-error,
+.page-error {
+  min-height: 60vh;
+  padding: 180px 24px 80px;
+  text-align: center;
+}
+
+.route-loading {
+  color: var(--color-text-dark-muted);
+}
+
+.route-error {
+  color: #e7a1a1;
+}
+
+.page-error h1 {
+  margin-bottom: 16px;
+}
+
+.page-error p {
+  margin-bottom: 28px;
+  color: var(--color-text-dark-muted);
+}
