@@ -20,7 +20,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
   const [length, setLength] = useState<number>(2.0); // в метрах
   const [width, setWidth] = useState<number>(0.6); // в метрах
   const [thickness, setThickness] = useState<string>(stone ? stone.thickness[0] : '');
-  const [edgeProfile, setEdgeProfile] = useState<'classic' | 'half-bullnose' | 'full-bullnose' | 'ogee'>('classic');
+  const [projectDetails, setProjectDetails] = useState('');
 
   // Lead form state
   const [userName, setUserName] = useState('');
@@ -56,37 +56,6 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
     setZoomStyle({ display: 'none' });
   };
 
-  // Dynamic calculations
-  const area = length * width;
-  const perimeter = (length + width) * 2;
-  
-  const stonePrice = stone.price; // руб за м²
-  const baseProductMultipliers = {
-    'countertop': 1.15, // extra waste/cut overhead
-    'fireplace': 1.4,
-    'stairs': 1.25,
-    'wall-panel': 1.1
-  };
-
-  const edgeProfilePrices = {
-    'classic': 1500, // руб за п.м.
-    'half-bullnose': 2500,
-    'full-bullnose': 3500,
-    'ogee': 5000
-  };
-
-  const thicknessInMillimeters = Number(thickness.match(/[\d,.]+/)?.[0].replace(',', '.')) || 20;
-  const thicknessMultiplier = Math.max(1, thicknessInMillimeters / 20);
-
-  const calculatedStoneCost = area
-    * stonePrice
-    * baseProductMultipliers[productType]
-    * thicknessMultiplier;
-  const calculatedEdgeCost = perimeter * edgeProfilePrices[edgeProfile];
-  const installationCost = area * 5000 + 4000; // base install fee
-  
-  const totalCost = Math.round(calculatedStoneCost + calculatedEdgeCost + installationCost);
-
   const handleSubmitLead = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userName || !userPhone) return;
@@ -98,7 +67,8 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
       stone: stone.name,
       product: productType,
       dimensions: `${length}x${width}м`,
-      totalCost
+      thickness,
+      details: projectDetails,
     });
 
     setFormSubmitted(true);
@@ -221,176 +191,96 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
           </div>
         </div>
 
-        {/* Product Interactive Calculator & Lead Form */}
-        <section id="callback-form" className="calc-section">
-          <div className="calc-card">
-            <div className="calc-grid">
-              
-              {/* Left Side: Parameters */}
-              <div className="calc-params">
-                <h3 className="calc-header-title">
-                  <Settings size={20} className="calc-header-icon" /> 
-                  Рассчитать стоимость изделия
-                </h3>
-                <p className="calc-header-desc">Вы можете рассчитать предварительную стоимость готового изделия из этого камня.</p>
-                
-                <div className="param-group">
-                  <label>Тип изделия</label>
-                  <div className="param-options flex-wrap">
-                    <button 
-                      className={`param-opt-btn ${productType === 'countertop' ? 'active' : ''}`}
-                      onClick={() => setProductType('countertop')}
-                    >
-                      Столешница / Остров
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${productType === 'wall-panel' ? 'active' : ''}`}
-                      onClick={() => setProductType('wall-panel')}
-                    >
-                      Стеновое панно
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${productType === 'fireplace' ? 'active' : ''}`}
-                      onClick={() => setProductType('fireplace')}
-                    >
-                      Облицовка камина
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${productType === 'stairs' ? 'active' : ''}`}
-                      onClick={() => setProductType('stairs')}
-                    >
-                      Ступени
-                    </button>
-                  </div>
-                </div>
+        {/* Individual Product Quote */}
+        <section id="callback-form" className="quote-section">
+          <div className="quote-card">
+            <div className="quote-intro">
+              <span className="quote-eyebrow">Расчет по вашему проекту</span>
+              <h3 className="quote-title">
+                <Settings size={22} className="quote-title-icon" />
+                Получить стоимость изделия
+              </h3>
+              <p className="quote-description">
+                Итоговая цена зависит от выбранной партии камня, раскроя, обработки кромок, вырезов и условий монтажа. Оставьте параметры — технолог подготовит расчет по актуальным данным.
+              </p>
 
-                <div className="param-row-inputs">
-                  <div className="param-group">
-                    <label>Длина (м)</label>
-                    <input 
-                      type="number" 
-                      step="0.1" 
-                      min="0.5" 
-                      max="10" 
-                      value={length} 
-                      onChange={(e) => setLength(parseFloat(e.target.value) || 0.5)}
-                      className="calc-num-input"
-                    />
-                  </div>
-                  <div className="param-group">
-                    <label>Ширина (м)</label>
-                    <input 
-                      type="number" 
-                      step="0.1" 
-                      min="0.1" 
-                      max="5" 
-                      value={width} 
-                      onChange={(e) => setWidth(parseFloat(e.target.value) || 0.1)}
-                      className="calc-num-input"
-                    />
-                  </div>
-                </div>
-
-                <div className="param-group">
-                  <label>Толщина камня (плиты)</label>
-                  <select 
-                    value={thickness} 
-                    onChange={(e) => setThickness(e.target.value)}
-                    className="calc-select"
-                  >
-                    {stone.thickness.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="param-group">
-                  <label>Профиль торца (Обработка кромки)</label>
-                  <div className="param-options grid-options">
-                    <button 
-                      className={`param-opt-btn ${edgeProfile === 'classic' ? 'active' : ''}`}
-                      onClick={() => setEdgeProfile('classic')}
-                    >
-                      <span>Классическая фаска (T)</span>
-                      <small>+1 500 ₽/п.м.</small>
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${edgeProfile === 'half-bullnose' ? 'active' : ''}`}
-                      onClick={() => setEdgeProfile('half-bullnose')}
-                    >
-                      <span>Полукруг (Half Bullnose)</span>
-                      <small>+2 500 ₽/п.м.</small>
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${edgeProfile === 'full-bullnose' ? 'active' : ''}`}
-                      onClick={() => setEdgeProfile('full-bullnose')}
-                    >
-                      <span>Полный круг (Full Bullnose)</span>
-                      <small>+3 500 ₽/п.м.</small>
-                    </button>
-                    <button 
-                      className={`param-opt-btn ${edgeProfile === 'ogee' ? 'active' : ''}`}
-                      onClick={() => setEdgeProfile('ogee')}
-                    >
-                      <span>Фигурный Ogee (Классика)</span>
-                      <small>+5 000 ₽/п.м.</small>
-                    </button>
-                  </div>
+              <div className="quote-stone-summary">
+                <img src={stone.image} alt="" />
+                <div>
+                  <span>Выбранный материал</span>
+                  <strong>{stone.name}</strong>
+                  <small>{stone.origin} · {stone.inStock ? 'в наличии' : 'под заказ'}</small>
                 </div>
               </div>
 
-              {/* Right Side: Lead Capture & Price Display */}
-              <div className="calc-result">
-                <div className="price-display-box">
-                  <span className="price-label">Предварительный расчет изделия:</span>
-                  <div className="price-number">
-                    {stone.price === 0 ? 'по запросу' : <>{totalCost.toLocaleString('ru-RU')} <span className="currency">₽</span></>}
-                  </div>
-                  <p className="price-details-footnote">
-                    {stone.price === 0 
-                      ? '*Расчет стоимости изделия производится индивидуально по запросу.'
-                      : `*Включает: материал ${thickness} (${area.toFixed(2)} м²), обработку торцов (${perimeter.toFixed(2)} п.м.), гидрорезку и базовую сборку. Доставка и финальный монтаж зависят от сложности объекта.`}
-                  </p>
-                </div>
+              <ul className="quote-factors">
+                <li><Check size={16} /> Проверим наличие нужного слэба и толщины</li>
+                <li><Check size={16} /> Учтем обработку, вырезы, доставку и монтаж</li>
+                <li><Check size={16} /> Согласуем расчет до начала работ</li>
+              </ul>
+            </div>
 
-                {!formSubmitted ? (
-                  <form onSubmit={handleSubmitLead} className="lead-form">
-                    <h4 className="lead-form-title">
-                      <PhoneCall size={16} className="text-gold" /> Отправить расчет инженеру
-                    </h4>
-                    <p className="lead-form-desc">Зафиксируйте стоимость этого камня. Мы перезвоним для уточнения размеров и пригласим вас на просмотр камня.</p>
-                    
-                    <input 
-                      type="text" 
-                      placeholder="Имя" 
-                      className="lead-input" 
-                      value={userName} 
-                      onChange={(e) => setUserName(e.target.value)} 
-                      required 
-                    />
-                    <input 
-                      type="tel" 
-                      placeholder="Телефон (+7...)" 
-                      className="lead-input" 
-                      value={userPhone} 
-                      onChange={(e) => setUserPhone(e.target.value)} 
-                      required 
-                    />
-                    
-                    <button type="submit" className="btn-gold-solid w-full">Отправить расчет</button>
-                  </form>
-                ) : (
-                  <div className="lead-success">
-                    <div className="success-icon">
-                      <Check size={32} />
+            <div className="quote-form-column">
+              {!formSubmitted ? (
+                <form onSubmit={handleSubmitLead} className="quote-form">
+                  <h4 className="quote-form-title">
+                    <PhoneCall size={17} className="text-gold" /> Параметры изделия
+                  </h4>
+
+                  <div className="quote-field">
+                    <label>Тип изделия</label>
+                    <div className="quote-product-options">
+                      <button type="button" className={productType === 'countertop' ? 'active' : ''} onClick={() => setProductType('countertop')}>Столешница</button>
+                      <button type="button" className={productType === 'wall-panel' ? 'active' : ''} onClick={() => setProductType('wall-panel')}>Панно</button>
+                      <button type="button" className={productType === 'fireplace' ? 'active' : ''} onClick={() => setProductType('fireplace')}>Камин</button>
+                      <button type="button" className={productType === 'stairs' ? 'active' : ''} onClick={() => setProductType('stairs')}>Ступени</button>
                     </div>
-                    <h4>Расчет успешно отправлен!</h4>
-                    <p>Наш технолог свяжется с вами в течение 15 минут по номеру <strong>{userPhone}</strong> для согласования чертежей.</p>
-                    <button onClick={() => setFormSubmitted(false)} className="btn-gold">Сделать другой расчет</button>
                   </div>
-                )}
-              </div>
 
+                  <div className="quote-fields-row">
+                    <div className="quote-field">
+                      <label htmlFor="quote-length">Длина, м</label>
+                      <input id="quote-length" type="number" step="0.1" min="0.1" max="20" value={length} onChange={(e) => setLength(parseFloat(e.target.value) || 0.1)} />
+                    </div>
+                    <div className="quote-field">
+                      <label htmlFor="quote-width">Ширина, м</label>
+                      <input id="quote-width" type="number" step="0.1" min="0.1" max="10" value={width} onChange={(e) => setWidth(parseFloat(e.target.value) || 0.1)} />
+                    </div>
+                    <div className="quote-field">
+                      <label htmlFor="quote-thickness">Толщина</label>
+                      <select id="quote-thickness" value={thickness} onChange={(e) => setThickness(e.target.value)}>
+                        {stone.thickness.map((item) => <option key={item} value={item}>{item}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="quote-fields-row quote-contact-row">
+                    <div className="quote-field">
+                      <label htmlFor="quote-name">Имя</label>
+                      <input id="quote-name" type="text" placeholder="Ваше имя" value={userName} onChange={(e) => setUserName(e.target.value)} required />
+                    </div>
+                    <div className="quote-field">
+                      <label htmlFor="quote-phone">Телефон</label>
+                      <input id="quote-phone" type="tel" placeholder="+7 (___) ___-__-__" value={userPhone} onChange={(e) => setUserPhone(e.target.value)} required />
+                    </div>
+                  </div>
+
+                  <div className="quote-field">
+                    <label htmlFor="quote-details">Комментарий</label>
+                    <textarea id="quote-details" rows={3} placeholder="Укажите количество деталей, вырезы, обработку кромки или другие пожелания" value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} />
+                  </div>
+
+                  <button type="submit" className="btn-gold-solid w-full">Запросить индивидуальный расчет</button>
+                  <p className="quote-form-note">Точная стоимость формируется после уточнения чертежей и наличия материала.</p>
+                </form>
+              ) : (
+                <div className="lead-success">
+                  <div className="success-icon"><Check size={32} /></div>
+                  <h4>Заявка принята</h4>
+                  <p>Свяжемся с вами по номеру <strong>{userPhone}</strong>, уточним детали и подготовим расчет.</p>
+                  <button onClick={() => setFormSubmitted(false)} className="btn-gold">Изменить параметры</button>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -580,6 +470,244 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
 
         .status-pill.pre-order {
           color: #eab308;
+        }
+
+        /* Individual quote section */
+        .quote-section {
+          padding-top: 40px;
+        }
+
+        .quote-card {
+          display: grid;
+          grid-template-columns: 0.82fr 1.18fr;
+          background: linear-gradient(135deg, rgba(23, 24, 28, 0.98), rgba(17, 18, 21, 0.98));
+          border: 1px solid rgba(197, 168, 128, 0.15);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .quote-intro,
+        .quote-form-column {
+          padding: 50px;
+        }
+
+        .quote-intro {
+          border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .quote-eyebrow {
+          color: var(--color-accent-gold);
+          font-size: 0.7rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+
+        .quote-title {
+          display: flex;
+          align-items: center;
+          gap: 11px;
+          color: #ffffff;
+          font-size: 1.75rem;
+          margin: 14px 0 18px;
+        }
+
+        .quote-title-icon {
+          color: var(--color-accent-gold);
+          flex-shrink: 0;
+        }
+
+        .quote-description {
+          color: var(--color-text-dark-muted);
+          font-size: 0.86rem;
+          line-height: 1.7;
+        }
+
+        .quote-stone-summary {
+          display: grid;
+          grid-template-columns: 72px 1fr;
+          gap: 16px;
+          align-items: center;
+          margin: 30px 0;
+          padding: 14px;
+          background-color: rgba(0, 0, 0, 0.18);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .quote-stone-summary img {
+          width: 72px;
+          height: 72px;
+          object-fit: cover;
+        }
+
+        .quote-stone-summary div {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .quote-stone-summary span,
+        .quote-stone-summary small {
+          color: var(--color-text-dark-muted);
+          font-size: 0.7rem;
+        }
+
+        .quote-stone-summary strong {
+          color: #ffffff;
+          font-size: 0.93rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .quote-factors {
+          display: flex;
+          flex-direction: column;
+          gap: 13px;
+        }
+
+        .quote-factors li {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          color: rgba(255, 255, 255, 0.82);
+          font-size: 0.77rem;
+          line-height: 1.45;
+        }
+
+        .quote-factors svg {
+          color: var(--color-accent-gold);
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .quote-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .quote-form-title {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          color: #ffffff;
+          font-size: 1.1rem;
+          margin-bottom: 2px;
+        }
+
+        .quote-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          min-width: 0;
+        }
+
+        .quote-field label {
+          color: var(--color-accent-gold);
+          font-size: 0.68rem;
+          font-weight: 500;
+          letter-spacing: 0.09em;
+          text-transform: uppercase;
+        }
+
+        .quote-field input,
+        .quote-field select,
+        .quote-field textarea {
+          width: 100%;
+          padding: 12px 14px;
+          color: #ffffff;
+          font: inherit;
+          font-size: 0.82rem;
+          background-color: rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          outline: none;
+          resize: vertical;
+          transition: var(--transition-fast);
+        }
+
+        .quote-field input:focus,
+        .quote-field select:focus,
+        .quote-field textarea:focus {
+          border-color: var(--color-accent-gold);
+          box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.07);
+        }
+
+        .quote-field select option {
+          background-color: var(--color-bg-dark);
+        }
+
+        .quote-fields-row {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px;
+        }
+
+        .quote-contact-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .quote-product-options {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        .quote-product-options button {
+          min-height: 42px;
+          padding: 8px 10px;
+          color: var(--color-text-dark-muted);
+          font-size: 0.72rem;
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: var(--transition-fast);
+        }
+
+        .quote-product-options button:hover,
+        .quote-product-options button.active {
+          color: var(--color-accent-gold);
+          border-color: var(--color-accent-gold);
+          background-color: rgba(197, 168, 128, 0.08);
+        }
+
+        .quote-form-note {
+          color: var(--color-text-dark-muted);
+          font-size: 0.68rem;
+          line-height: 1.5;
+          text-align: center;
+        }
+
+        .quote-form-column .lead-success {
+          min-height: 100%;
+          justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+          .quote-card {
+            grid-template-columns: 1fr;
+          }
+
+          .quote-intro {
+            border-right: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .quote-intro,
+          .quote-form-column {
+            padding: 32px 20px;
+          }
+
+          .quote-title {
+            align-items: flex-start;
+            font-size: 1.45rem;
+          }
+
+          .quote-fields-row,
+          .quote-contact-row,
+          .quote-product-options {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
         }
 
         /* Calculator Section */
