@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import type { DragEvent, ChangeEvent } from 'react';
 import { Check, Send, Upload, FileText, CheckCircle, Trash2, Ruler, Shield, Sparkles } from 'lucide-react';
+import { mountingServiceGroups } from '../data/mountingServices';
+import type { MountingServiceGroup } from '../data/mountingServices';
 
 interface ServiceItem {
   id: string;
@@ -9,8 +11,15 @@ interface ServiceItem {
   icon: string;
   image: string;
   details: string[];
-  prices: { operation: string; cost: string }[];
+  prices?: { operation: string; cost: string }[];
+  priceGroups?: MountingServiceGroup[];
 }
+
+const mountingPriceFormatter = new Intl.NumberFormat('ru-RU');
+
+const getAdjustedMountingPrice = (basePrice: number, unit: string) => (
+  `от ${mountingPriceFormatter.format(Math.round(basePrice * 1.2))} ₽ / ${unit}`
+);
 
 const servicesData: ServiceItem[] = [
   {
@@ -18,7 +27,7 @@ const servicesData: ServiceItem[] = [
     title: 'Изготовление изделий',
     shortDesc: 'Столешницы для кухонь и ванных, подоконники, каминные порталы, лестницы и ступени по индивидуальным размерам.',
     icon: '📐',
-    image: 'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=800',
+    image: '/service-fabrication.webp',
     details: [
       'Кухонные столешницы и кухонные острова с бесшовной склейкой фартуков.',
       'Подоконники любой геометрической формы и толщины.',
@@ -38,7 +47,7 @@ const servicesData: ServiceItem[] = [
     title: 'Обработка камня',
     shortDesc: 'Гидроабразивная резка, фигурная обработка торцов (профилей), реставрация, полировка и состаривание.',
     icon: '⚡',
-    image: 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&q=80&w=800',
+    image: '/service-processing.webp',
     details: [
       'Гидроабразивная резка (Waterjet) с ЧПУ для создания сложнейших художественных панно и мозаики.',
       'Нарезка фасок и фигурная обработка торцов (более 20 видов профилей: классика, полукруг, Ogee).',
@@ -56,22 +65,18 @@ const servicesData: ServiceItem[] = [
   {
     id: 'installation',
     title: 'Монтаж и облицовка',
-    shortDesc: 'Профессиональная укладка полов, монтаж панно типа «бабочка» (bookmatch), облицовка стен и интеграция подсветки.',
+    shortDesc: 'Монтаж столешниц, подоконников, лестниц, полов, стен, цоколей и колонн, а также шлифовка и переполировка камня.',
     icon: '🏛️',
-    image: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=800',
+    image: '/service-installation.webp',
     details: [
-      'Укладка крупноформатных плит на пол с калибровкой швов на месте.',
-      'Облицовка стен вертикальными плитами из камня с подбором рисунка прожилок.',
-      'Монтаж светопрозрачных панно из оникса или кварцита со встроенной LED-подсветкой.',
-      'Сухой монтаж на фасадные подсистемы (вентилируемые фасады).'
+      'Установка столешниц и фартуков для кухни и ванной.',
+      'Монтаж подоконников и подготовка основания.',
+      'Установка ступеней, балясин, перил и других элементов лестницы.',
+      'Монтаж плиточных, слэбовых и художественных полов.',
+      'Шлифовка, переполировка и обработка камня под «антик».',
+      'Облицовка стен, цоколей и прямоугольных колонн.'
     ],
-    prices: [
-      { operation: 'Укладка каменных полов', cost: 'от 4 500 ₽ / м²' },
-      { operation: 'Облицовка стен (крупный формат)', cost: 'от 6 000 ₽ / м²' },
-      { operation: 'Монтаж панно с подсветкой', cost: 'от 12 000 ₽ / м²' },
-      { operation: 'Монтаж кухонной столешницы', cost: 'от 7 000 ₽ / изд.' },
-      { operation: 'Кристаллизация швов после укладки', cost: 'от 1 500 ₽ / м²' }
-    ]
+    priceGroups: mountingServiceGroups
   }
 ];
 
@@ -221,7 +226,7 @@ export const Services: React.FC = () => {
             ATLAS STONE сопровождает проект от выбора материала и замера до изготовления и монтажа. Все параметры изделия согласовываются до начала работ.
           </p>
           <button className="btn-gold-solid hero-cta-btn" onClick={handleScrollToForm}>
-            Вызвать замерщика с образцами <ArrowRightIcon />
+            Заказать расчет <ArrowRightIcon />
           </button>
         </div>
       </section>
@@ -262,7 +267,7 @@ export const Services: React.FC = () => {
                   {/* Expandable Accordion Body */}
                   <div className="card-expanded-body">
                     <div className="expanded-body-inner">
-                      <div className="expanded-columns">
+                      <div className={`expanded-columns ${service.priceGroups ? 'has-price-groups' : ''}`}>
                         
                         {/* Column 1: Tech specifications */}
                         <div className="expanded-tech-spec">
@@ -280,15 +285,34 @@ export const Services: React.FC = () => {
                         {/* Column 2: Operation Prices */}
                         <div className="expanded-pricing-table">
                           <h4>Базовые тарифы:</h4>
-                          <div className="pricing-items-list">
-                            {service.prices.map((price, idx) => (
-                              <div key={idx} className="price-item-row">
-                                <span className="price-operation">{price.operation}</span>
-                                <span className="price-spacer-dots" />
-                                <span className="price-cost">{price.cost}</span>
-                              </div>
-                            ))}
-                          </div>
+                          {service.priceGroups ? (
+                            <div className="price-groups-grid">
+                              {service.priceGroups.map((group) => (
+                                <div key={group.category} className="price-group">
+                                  <h5>{group.category}</h5>
+                                  <div className="pricing-items-list">
+                                    {group.items.map((price) => (
+                                      <div key={`${group.category}-${price.operation}`} className="price-item-row">
+                                        <span className="price-operation">{price.operation}</span>
+                                        <span className="price-spacer-dots" />
+                                        <span className="price-cost">{getAdjustedMountingPrice(price.basePrice, price.unit)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="pricing-items-list">
+                              {service.prices?.map((price, idx) => (
+                                <div key={idx} className="price-item-row">
+                                  <span className="price-operation">{price.operation}</span>
+                                  <span className="price-spacer-dots" />
+                                  <span className="price-cost">{price.cost}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                       </div>
@@ -676,7 +700,7 @@ export const Services: React.FC = () => {
         }
 
         .service-interactive-card.expanded .card-expanded-body {
-          max-height: 800px; /* arbitrary large value */
+          max-height: 10000px;
           border-top-color: rgba(255, 255, 255, 0.05);
         }
 
@@ -695,6 +719,10 @@ export const Services: React.FC = () => {
           display: grid;
           grid-template-columns: 1.2fr 1fr;
           gap: 50px;
+        }
+
+        .expanded-columns.has-price-groups {
+          grid-template-columns: 1fr;
         }
 
         @media (max-width: 900px) {
@@ -740,6 +768,27 @@ export const Services: React.FC = () => {
           gap: 12px;
         }
 
+        .price-groups-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 36px 50px;
+        }
+
+        .price-group h5 {
+          color: #ffffff;
+          font-size: 1rem;
+          line-height: 1.35;
+          margin-bottom: 18px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid rgba(197, 168, 128, 0.24);
+        }
+
+        @media (max-width: 900px) {
+          .price-groups-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
         .price-item-row {
           display: flex;
           justify-content: space-between;
@@ -759,6 +808,7 @@ export const Services: React.FC = () => {
         }
 
         .price-cost {
+          flex-shrink: 0;
           color: var(--color-accent-gold);
           font-weight: 500;
           white-space: nowrap;

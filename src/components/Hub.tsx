@@ -7,12 +7,15 @@ import {
   Cpu, 
   Sparkles, 
   ChevronRight, 
-  RefreshCw,
   Layers,
   Flame,
   Droplets,
   UtensilsCrossed,
-  X
+  ArrowLeft,
+  RefreshCw,
+  X,
+  Send,
+  CheckCircle
 } from 'lucide-react';
 import { stonesData } from '../data/catalog';
 import type { Stone } from '../data/stones';
@@ -23,6 +26,9 @@ interface HubProps {
 
 type PortfolioCategory = 'cladding' | 'stairs' | 'floors' | 'monuments' | 'fireplaces';
 type PortfolioFilter = 'all' | PortfolioCategory;
+type QuizUseCase = 'countertop' | 'bathroom' | 'fireplace' | 'stairs' | 'wall' | 'outdoor';
+type QuizPalette = 'any' | 'light' | 'dark' | 'warm' | 'green' | 'blue' | 'accent';
+type QuizBudget = 'any' | 'value' | 'balanced' | 'premium';
 
 interface PortfolioItem {
   id: number;
@@ -162,6 +168,34 @@ const portfolioItems: PortfolioItem[] = [
   },
 ];
 
+const quizStoneTypes: Record<QuizUseCase, Stone['type'][]> = {
+  countertop: ['кварцит', 'гранит', 'лабрадорит', 'мрамор'],
+  bathroom: ['мрамор', 'кварцит', 'гранит', 'оникс', 'травертин'],
+  fireplace: ['мрамор', 'гранит', 'кварцит', 'травертин', 'оникс'],
+  stairs: ['гранит', 'мрамор', 'кварцит', 'травертин'],
+  wall: ['мрамор', 'оникс', 'кварцит', 'травертин', 'гранит'],
+  outdoor: ['гранит', 'кварцит', 'травертин', 'лабрадорит'],
+};
+
+const quizPaletteColors: Record<QuizPalette, string[]> = {
+  any: [],
+  light: ['белый', 'бежевый', 'серый'],
+  dark: ['черный', 'серый', 'коричневый'],
+  warm: ['бежевый', 'коричневый', 'желтый'],
+  green: ['зеленый'],
+  blue: ['синий'],
+  accent: ['красный', 'розовый', 'желтый', 'зеленый', 'синий'],
+};
+
+const quizUseCaseLabels: Record<QuizUseCase, string> = {
+  countertop: 'столешница или остров',
+  bathroom: 'ванная комната',
+  fireplace: 'камин',
+  stairs: 'ступени или пол',
+  wall: 'панно или облицовка',
+  outdoor: 'фасад или улица',
+};
+
 export const Hub: React.FC<HubProps> = ({ setView }) => {
   // Portfolio states
   const [lightboxProject, setLightboxProject] = useState<PortfolioItem | null>(null);
@@ -171,11 +205,19 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
     ? portfolioItems
     : portfolioItems.filter((item) => item.category === portfolioFilter);
 
-  // Quiz states
-  const [quizStep, setQuizStep] = useState(1);
-  const [quizUseCase, setQuizUseCase] = useState<string | null>(null);
-  const [quizColorVibe, setQuizColorVibe] = useState<string | null>(null);
-  const [quizResult, setQuizResult] = useState<Stone | null>(null);
+  // Stone selection assistant states
+  const [quizStep, setQuizStep] = useState<1 | 2 | 3 | 4>(1);
+  const [quizUseCase, setQuizUseCase] = useState<QuizUseCase | null>(null);
+  const [quizPalette, setQuizPalette] = useState<QuizPalette | null>(null);
+  const [quizBudget, setQuizBudget] = useState<QuizBudget | null>(null);
+  const [quizResults, setQuizResults] = useState<Stone[]>([]);
+
+  // Product quote form states
+  const [quoteName, setQuoteName] = useState('');
+  const [quotePhone, setQuotePhone] = useState('');
+  const [quoteProduct, setQuoteProduct] = useState('');
+  const [quoteDetails, setQuoteDetails] = useState('');
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false);
 
   // Featured stones subset
   const featuredStoneIds = [
@@ -188,46 +230,75 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
     .map(id => stonesData.find(stone => stone.id === id))
     .filter((stone): stone is Stone => stone !== undefined);
 
-  const startQuizAgain = () => {
-    setQuizStep(1);
-    setQuizUseCase(null);
-    setQuizColorVibe(null);
-    setQuizResult(null);
+  const getQuizMatches = (useCase: QuizUseCase, palette: QuizPalette, budget: QuizBudget) => {
+    const preferredTypes = quizStoneTypes[useCase];
+    const preferredColors = quizPaletteColors[palette];
+
+    const matchesPalette = (stone: Stone) => {
+      if (preferredColors.length === 0) return true;
+      const colors = Array.isArray(stone.color) ? stone.color : [stone.color];
+      return colors.some((color) => preferredColors.includes(color));
+    };
+
+    const matchesBudget = (stone: Stone) => {
+      if (budget === 'any') return true;
+      if (stone.price <= 0) return false;
+      if (budget === 'value') return stone.price <= 15000;
+      if (budget === 'balanced') return stone.price > 15000 && stone.price <= 50000;
+      return stone.price > 50000;
+    };
+
+    return stonesData
+      .filter((stone) => preferredTypes.includes(stone.type) && matchesPalette(stone) && matchesBudget(stone))
+      .sort((first, second) => {
+        if (first.inStock !== second.inStock) return first.inStock ? -1 : 1;
+        const typeDifference = preferredTypes.indexOf(first.type) - preferredTypes.indexOf(second.type);
+        if (typeDifference !== 0) return typeDifference;
+        if (budget === 'premium') return second.price - first.price;
+        if (first.price === 0) return 1;
+        if (second.price === 0) return -1;
+        return first.price - second.price;
+      })
+      .slice(0, 6);
   };
 
-  const handleUseCaseSelect = (useCase: string) => {
+  const handleUseCaseSelect = (useCase: QuizUseCase) => {
     setQuizUseCase(useCase);
     setQuizStep(2);
   };
 
-  const handleColorVibeSelect = (vibe: string) => {
-    setQuizColorVibe(vibe);
-    
-    // Determine matched stone
-    const uCase = quizUseCase || 'countertop';
-    let matchedId = 'koelga-marble';
-
-    if (uCase === 'countertop') {
-      if (vibe === 'light') matchedId = 'koelga-marble';
-      else if (vibe === 'dark') matchedId = 'absolute-black';
-      else matchedId = 'volga-blue-granite';
-    } else if (uCase === 'wall') {
-      if (vibe === 'light') matchedId = 'polotsky-marble';
-      else if (vibe === 'dark') matchedId = 'gabbro-kupetsky-granite';
-      else matchedId = 'granatovy-amfibolit-granite';
-    } else if (uCase === 'fireplace') {
-      if (vibe === 'light') matchedId = 'koelga-marble';
-      else if (vibe === 'dark') matchedId = 'gabbro-diabase-granite';
-      else matchedId = 'ala-noskua-granite';
-    } else if (uCase === 'bathroom') {
-      if (vibe === 'light') matchedId = 'polotsky-marble';
-      else if (vibe === 'dark') matchedId = 'absolute-black';
-      else matchedId = 'zheltau-5-granite';
-    }
-
-    const found = stonesData.find(s => s.id === matchedId) || stonesData[0];
-    setQuizResult(found);
+  const handlePaletteSelect = (palette: QuizPalette) => {
+    setQuizPalette(palette);
     setQuizStep(3);
+  };
+
+  const handleBudgetSelect = (budget: QuizBudget) => {
+    if (!quizUseCase || !quizPalette) return;
+    setQuizBudget(budget);
+    setQuizResults(getQuizMatches(quizUseCase, quizPalette, budget));
+    setQuizStep(4);
+  };
+
+  const resetQuiz = () => {
+    setQuizStep(1);
+    setQuizUseCase(null);
+    setQuizPalette(null);
+    setQuizBudget(null);
+    setQuizResults([]);
+  };
+
+  const handleProductQuoteSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!quoteName || !quotePhone || !quoteProduct) return;
+
+    console.log('Product Quote Submission:', {
+      name: quoteName,
+      phone: quotePhone,
+      product: quoteProduct,
+      details: quoteDetails,
+    });
+
+    setQuoteSubmitted(true);
   };
 
   return (
@@ -295,7 +366,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           <div className="gateway-card" onClick={() => setView('services')}>
             <div 
               className="gateway-bg" 
-              style={{ backgroundImage: 'url(/gateway-production.jpg)' }}
+              style={{ backgroundImage: 'url(/services-hero-v2.png)' }}
             />
             <div className="gateway-overlay" />
             <div className="gateway-content">
@@ -360,139 +431,150 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
         </div>
       </section>
 
-      {/* 5. Interactive Stone Selector (Quiz) Widget */}
-      <section className="quiz-selector-section">
+      {/* 5. Interactive Stone Selector */}
+      <section className="stone-selector-section">
         <div className="container">
-          <div className="quiz-card-wrapper">
-            <div className="quiz-info-block">
-              <span className="section-tag">Умный ассистент</span>
-              <h2 className="quiz-title-main">Индивидуальный подбор камня</h2>
-              <p className="quiz-subtitle-main">
-                Ответьте на 2 простых вопроса, и наш алгоритм подберет идеальный сорт камня под ваши задачи, учитывая его износостойкость, эстетику и особенности эксплуатации.
+          <div className={`stone-selector-card ${quizStep === 4 ? 'showing-results' : ''}`}>
+            <div className="selector-intro">
+              <span className="section-tag">Помощник по каталогу</span>
+              <h2 className="selector-title">Подберите камень под вашу задачу</h2>
+              <p className="selector-description">
+                Укажите назначение, желаемую палитру и бюджет. Мы отберем несколько подходящих вариантов из актуального каталога с учетом свойств породы и наличия.
               </p>
-              <div className="quiz-steps-indicators">
-                <div className={`step-dot ${quizStep >= 1 ? 'active' : ''}`} />
-                <div className={`step-dot ${quizStep >= 2 ? 'active' : ''}`} />
-                <div className={`step-dot ${quizStep >= 3 ? 'active' : ''}`} />
+
+              <div className="selector-progress" aria-label={`Шаг ${Math.min(quizStep, 3)} из 3`}>
+                {[1, 2, 3].map((step) => (
+                  <span key={step} className={quizStep >= step ? 'active' : ''} />
+                ))}
+                <small>{quizStep === 4 ? 'Подбор готов' : `Шаг ${quizStep} из 3`}</small>
               </div>
+
+              {(quizUseCase || quizPalette || quizBudget) && (
+                <div className="selector-selections">
+                  {quizUseCase && <span>{quizUseCaseLabels[quizUseCase]}</span>}
+                  {quizPalette && <span>{quizPalette === 'any' ? 'любой цвет' : `палитра: ${quizPalette === 'light' ? 'светлая' : quizPalette === 'dark' ? 'темная' : quizPalette === 'warm' ? 'теплая' : quizPalette === 'green' ? 'зеленая' : quizPalette === 'blue' ? 'синяя' : 'акцентная'}`}</span>}
+                  {quizBudget && <span>{quizBudget === 'any' ? 'любой бюджет' : quizBudget === 'value' ? 'до 15 000 ₽/м²' : quizBudget === 'balanced' ? '15 000–50 000 ₽/м²' : 'от 50 000 ₽/м²'}</span>}
+                </div>
+              )}
             </div>
 
-            <div className="quiz-interactive-block">
+            <div className="selector-interactive">
               {quizStep === 1 && (
-                <div className="quiz-step-content fade-in">
-                  <h3 className="quiz-step-title">1. Где вы планируете использовать камень?</h3>
-                  <div className="quiz-options-grid">
-                    <button className="quiz-option-btn" onClick={() => handleUseCaseSelect('countertop')}>
-                      <div className="option-icon-box"><UtensilsCrossed size={20} /></div>
-                      <div className="option-texts">
-                        <span className="option-title">Столешница / Кухонный остров</span>
-                        <span className="option-desc">Требуется максимальная прочность и стойкость к кислотам</span>
-                      </div>
+                <div className="selector-step fade-in">
+                  <div className="selector-step-heading">
+                    <span>01</span>
+                    <h3>Где будет использоваться камень?</h3>
+                  </div>
+                  <div className="selector-options-grid use-case-options">
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('countertop')}>
+                      <span className="selector-option-icon"><UtensilsCrossed size={19} /></span>
+                      <span><strong>Столешница / остров</strong><small>Кухня, барная зона, рабочая поверхность</small></span>
+                      <ChevronRight size={17} />
                     </button>
-                    
-                    <button className="quiz-option-btn" onClick={() => handleUseCaseSelect('wall')}>
-                      <div className="option-icon-box"><Layers size={20} /></div>
-                      <div className="option-texts">
-                        <span className="option-title">Настенное панно / Гостиная</span>
-                        <span className="option-desc">Приоритет на красивый рисунок прожилок и масштабность</span>
-                      </div>
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('bathroom')}>
+                      <span className="selector-option-icon"><Droplets size={19} /></span>
+                      <span><strong>Ванная комната</strong><small>Столешница, стены, душевая зона</small></span>
+                      <ChevronRight size={17} />
                     </button>
-
-                    <button className="quiz-option-btn" onClick={() => handleUseCaseSelect('fireplace')}>
-                      <div className="option-icon-box"><Flame size={20} /></div>
-                      <div className="option-texts">
-                        <span className="option-title">Облицовка камина</span>
-                        <span className="option-desc">Важна жаропрочность и благородный классический вид</span>
-                      </div>
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('fireplace')}>
+                      <span className="selector-option-icon"><Flame size={19} /></span>
+                      <span><strong>Облицовка камина</strong><small>Портал или декоративная композиция</small></span>
+                      <ChevronRight size={17} />
                     </button>
-
-                    <button className="quiz-option-btn" onClick={() => handleUseCaseSelect('bathroom')}>
-                      <div className="option-icon-box"><Droplets size={20} /></div>
-                      <div className="option-texts">
-                        <span className="option-title">Ванная комната</span>
-                        <span className="option-desc">Необходима устойчивость к влаге и моющим средствам</span>
-                      </div>
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('stairs')}>
+                      <span className="selector-option-icon"><Box size={19} /></span>
+                      <span><strong>Ступени / пол</strong><small>Поверхности с регулярной нагрузкой</small></span>
+                      <ChevronRight size={17} />
+                    </button>
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('wall')}>
+                      <span className="selector-option-icon"><Layers size={19} /></span>
+                      <span><strong>Панно / облицовка</strong><small>Акцентная стена, колонны, интерьер</small></span>
+                      <ChevronRight size={17} />
+                    </button>
+                    <button type="button" className="selector-option" onClick={() => handleUseCaseSelect('outdoor')}>
+                      <span className="selector-option-icon"><Compass size={19} /></span>
+                      <span><strong>Фасад / улица</strong><small>Цоколь, крыльцо, мощение, экстерьер</small></span>
+                      <ChevronRight size={17} />
                     </button>
                   </div>
                 </div>
               )}
 
               {quizStep === 2 && (
-                <div className="quiz-step-content fade-in">
-                  <h3 className="quiz-step-title">2. Какая цветовая и стилистическая гамма вам ближе?</h3>
-                  <div className="quiz-options-grid">
-                    <button className="quiz-option-btn" onClick={() => handleColorVibeSelect('light')}>
-                      <div className="option-icon-box color-indicator light-color" />
-                      <div className="option-texts">
-                        <span className="option-title">Светлая и благородная</span>
-                        <span className="option-desc">Белые, молочные, сливочные тона, визуально расширяющие комнату</span>
-                      </div>
-                    </button>
-
-                    <button className="quiz-option-btn" onClick={() => handleColorVibeSelect('dark')}>
-                      <div className="option-icon-box color-indicator dark-color" />
-                      <div className="option-texts">
-                        <span className="option-title">Темная и контрастная</span>
-                        <span className="option-desc">Глубокие черные, темно-серые тона для создания камерного шика</span>
-                      </div>
-                    </button>
-
-                    <button className="quiz-option-btn" onClick={() => handleColorVibeSelect('rich')}>
-                      <div className="option-icon-box color-indicator rich-color" />
-                      <div className="option-texts">
-                        <span className="option-title">Редкие цветные акценты</span>
-                        <span className="option-desc">Яркие природные узоры, экзотические текстуры и полудрагоценные цвета</span>
-                      </div>
-                    </button>
+                <div className="selector-step fade-in">
+                  <div className="selector-step-heading">
+                    <span>02</span>
+                    <h3>Какая палитра вам ближе?</h3>
                   </div>
-                  <button className="quiz-back-btn" onClick={() => setQuizStep(1)}>
-                    Назад
-                  </button>
+                  <div className="selector-options-grid palette-options">
+                    {([
+                      ['any', 'Любой цвет', 'Покажем максимум вариантов'],
+                      ['light', 'Светлая', 'Белые, бежевые и светло-серые'],
+                      ['dark', 'Темная', 'Черные, графитовые и коричневые'],
+                      ['warm', 'Теплая', 'Песочные, медовые и кофейные'],
+                      ['green', 'Зеленая', 'От оливкового до изумрудного'],
+                      ['blue', 'Синяя', 'Голубые и глубокие синие'],
+                      ['accent', 'Цветной акцент', 'Редкие выразительные оттенки'],
+                    ] as [QuizPalette, string, string][]).map(([value, title, description]) => (
+                      <button key={value} type="button" className="selector-option palette-option" onClick={() => handlePaletteSelect(value)}>
+                        <span className={`palette-swatch ${value}`} />
+                        <span><strong>{title}</strong><small>{description}</small></span>
+                        <ChevronRight size={17} />
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" className="selector-back" onClick={() => setQuizStep(1)}><ArrowLeft size={15} /> Назад</button>
                 </div>
               )}
 
-              {quizStep === 3 && quizResult && (
-                <div className="quiz-step-content quiz-result-step fade-in">
-                  <div className="result-header">
-                    <span className="result-label">Ваша идеальная порода:</span>
-                    <h3 className="result-stone-name">{quizResult.name}</h3>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-dark-muted)', marginTop: '8px' }}>
-                      Подобран для: {quizUseCase === 'countertop' ? 'Кухонной столешницы' : quizUseCase === 'wall' ? 'Стеновой панели' : quizUseCase === 'fireplace' ? 'Камина' : 'Ванной комнаты'} ({quizColorVibe === 'light' ? 'светлые тона' : quizColorVibe === 'dark' ? 'темные тона' : 'цветные акценты'})
-                    </p>
+              {quizStep === 3 && (
+                <div className="selector-step fade-in">
+                  <div className="selector-step-heading">
+                    <span>03</span>
+                    <h3>На какой бюджет по материалу ориентироваться?</h3>
+                  </div>
+                  <div className="selector-options-grid budget-options">
+                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('any')}><span><strong>Бюджет не определен</strong><small>Покажем варианты разных ценовых категорий</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('value')}><span><strong>До 15 000 ₽/м²</strong><small>Практичные решения и российские породы</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('balanced')}><span><strong>15 000–50 000 ₽/м²</strong><small>Широкий выбор импортных материалов</small></span><ChevronRight size={17} /></button>
+                    <button type="button" className="selector-option budget-option" onClick={() => handleBudgetSelect('premium')}><span><strong>От 50 000 ₽/м²</strong><small>Редкие и коллекционные сорта</small></span><ChevronRight size={17} /></button>
+                  </div>
+                  <button type="button" className="selector-back" onClick={() => setQuizStep(2)}><ArrowLeft size={15} /> Назад</button>
+                </div>
+              )}
+
+              {quizStep === 4 && (
+                <div className="selector-step selector-results fade-in">
+                  <div className="selector-results-heading">
+                    <div>
+                      <span className="section-tag">Подходящие варианты</span>
+                      <h3>{quizResults.length > 0 ? `Нашли ${quizResults.length} материалов` : 'Точных совпадений нет'}</h3>
+                    </div>
+                    <button type="button" className="selector-reset" onClick={resetQuiz}><RefreshCw size={15} /> Изменить параметры</button>
                   </div>
 
-                  <div className="result-stone-card">
-                    <div className="result-stone-img">
-                      <img src={quizResult.image} alt={quizResult.name} />
+                  {quizResults.length > 0 ? (
+                    <div className="selector-results-grid">
+                      {quizResults.map((stone) => (
+                        <button key={stone.id} type="button" className="selector-result-card" onClick={() => setView('detail', stone.id)}>
+                          <img src={stone.image} alt="" />
+                          <span className="selector-result-content">
+                            <small>{stone.type} · {stone.origin}</small>
+                            <strong>{stone.name}</strong>
+                            <span>{stone.price > 0 ? `от ${stone.price.toLocaleString('ru-RU')} ₽/м²` : 'Цена по запросу'} <ChevronRight size={15} /></span>
+                          </span>
+                        </button>
+                      ))}
                     </div>
-                    <div className="result-stone-details">
-                      <div className="result-tags">
-                        <span className="result-tag-pill">{quizResult.type}</span>
-                        <span className="result-tag-pill">{quizResult.origin}</span>
-                        <span className="result-tag-pill gold">{quizResult.rarity}</span>
-                      </div>
-                      <p className="result-stone-description">
-                        {quizResult.description}
-                      </p>
-                      <div className="result-price">
-                        Ориентировочная стоимость: <span className="price-val">от {quizResult.price.toLocaleString()} ₽/м²</span>
-                      </div>
+                  ) : (
+                    <div className="selector-empty-result">
+                      <p>Попробуйте расширить бюджет или выбрать вариант «Любой цвет». Специалист также может подобрать материал вручную.</p>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="result-actions">
-                    <button 
-                      className="btn-gold-solid" 
-                      onClick={() => setView('detail', quizResult.id)}
-                    >
-                      Подробнее о камне <ArrowRight size={14} />
-                    </button>
-                    <button 
-                      className="quiz-reset-btn"
-                      onClick={startQuizAgain}
-                    >
-                      <RefreshCw size={14} /> Подобрать другой
-                    </button>
+                  <div className="selector-result-actions">
+                    <button type="button" className="btn-gold" onClick={() => setView('catalog')}>Смотреть весь каталог</button>
+                    <a href="#callback-form">Запросить подбор специалистом</a>
                   </div>
                 </div>
               )}
@@ -646,10 +728,276 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
         </div>
       </section>
 
+      {/* Product Quote Form */}
+      <section id="callback-form" className="product-quote-section">
+        <div className="container">
+          <div className="product-quote-wrapper">
+            <div className="product-quote-info">
+              <span className="section-tag">Расчет изделий</span>
+              <h2 className="product-quote-title">Оставить заявку на просчет</h2>
+              <p className="product-quote-description">
+                Опишите нужное изделие из натурального камня. Мы уточним материал, размеры и обработку, затем подготовим предварительный расчет продукции без монтажных работ.
+              </p>
+
+              <div className="product-types-list">
+                <div className="product-type-item">
+                  <Box size={20} />
+                  <span>Столешницы и кухонные острова</span>
+                </div>
+                <div className="product-type-item">
+                  <Layers size={20} />
+                  <span>Подоконники, ступени и лестницы</span>
+                </div>
+                <div className="product-type-item">
+                  <Sparkles size={20} />
+                  <span>Камины, панели и изделия по эскизу</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="product-quote-form-column">
+              {!quoteSubmitted ? (
+                <form className="product-quote-form" onSubmit={handleProductQuoteSubmit}>
+                  <div className="product-form-row">
+                    <div className="product-form-group">
+                      <label htmlFor="quote-name">Ваше имя</label>
+                      <input
+                        id="quote-name"
+                        type="text"
+                        placeholder="Александр"
+                        value={quoteName}
+                        onChange={(event) => setQuoteName(event.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="product-form-group">
+                      <label htmlFor="quote-phone">Телефон для связи</label>
+                      <input
+                        id="quote-phone"
+                        type="tel"
+                        placeholder="+7 (999) 000-00-00"
+                        value={quotePhone}
+                        onChange={(event) => setQuotePhone(event.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="product-form-group">
+                    <label htmlFor="quote-product">Какое изделие нужно?</label>
+                    <input
+                      id="quote-product"
+                      type="text"
+                      placeholder="Например, столешница из мрамора"
+                      value={quoteProduct}
+                      onChange={(event) => setQuoteProduct(event.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="product-form-group">
+                    <label htmlFor="quote-details">Размеры и пожелания</label>
+                    <textarea
+                      id="quote-details"
+                      rows={4}
+                      placeholder="Укажите примерные размеры, выбранный камень или приложите описание задачи"
+                      value={quoteDetails}
+                      onChange={(event) => setQuoteDetails(event.target.value)}
+                    />
+                  </div>
+
+                  <button type="submit" className="btn-gold-solid product-quote-submit">
+                    Оставить заявку на просчет <Send size={16} />
+                  </button>
+                  <p className="product-quote-note">Заявка предназначена только для расчета продукции.</p>
+                </form>
+              ) : (
+                <div className="product-quote-success" role="status">
+                  <CheckCircle size={54} strokeWidth={1.5} />
+                  <h3>Заявка на просчет принята</h3>
+                  <p>Свяжемся с вами, чтобы уточнить параметры изделия и подготовить расчет.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Styles for Hub page */}
       <style>{`
         .hub-page {
           width: 100%;
+        }
+
+        .product-quote-section {
+          padding: 110px 0;
+          background:
+            radial-gradient(circle at 14% 22%, rgba(197, 168, 128, 0.09), transparent 34%),
+            var(--color-bg-dark);
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .product-quote-wrapper {
+          display: grid;
+          grid-template-columns: 0.9fr 1.1fr;
+          background-color: var(--color-bg-card-dark);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+        }
+
+        .product-quote-info,
+        .product-quote-form-column {
+          padding: 60px;
+        }
+
+        .product-quote-info {
+          border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .product-quote-title {
+          color: #ffffff;
+          font-size: clamp(2rem, 4vw, 3rem);
+          line-height: 1.12;
+          margin: 14px 0 20px;
+        }
+
+        .product-quote-description {
+          color: var(--color-text-dark-muted);
+          font-size: 0.92rem;
+          line-height: 1.75;
+          margin-bottom: 34px;
+        }
+
+        .product-types-list {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .product-type-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          color: rgba(255, 255, 255, 0.88);
+          font-size: 0.88rem;
+        }
+
+        .product-type-item svg {
+          color: var(--color-accent-gold);
+          flex-shrink: 0;
+        }
+
+        .product-quote-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .product-form-row {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 20px;
+        }
+
+        .product-form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .product-form-group label {
+          color: var(--color-accent-gold);
+          font-size: 0.72rem;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .product-form-group input,
+        .product-form-group textarea {
+          width: 100%;
+          padding: 13px 16px;
+          color: #ffffff;
+          font: inherit;
+          font-size: 0.85rem;
+          background-color: rgba(0, 0, 0, 0.16);
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          outline: none;
+          transition: var(--transition-fast);
+          resize: vertical;
+        }
+
+        .product-form-group input:focus,
+        .product-form-group textarea:focus {
+          border-color: var(--color-accent-gold);
+          box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.07);
+        }
+
+        .product-quote-submit {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          align-self: flex-start;
+          min-width: 270px;
+        }
+
+        .product-quote-note {
+          color: var(--color-text-dark-muted);
+          font-size: 0.72rem;
+        }
+
+        .product-quote-success {
+          min-height: 330px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: var(--color-accent-gold);
+        }
+
+        .product-quote-success h3 {
+          color: #ffffff;
+          font-size: 1.8rem;
+          margin: 18px 0 10px;
+        }
+
+        .product-quote-success p {
+          max-width: 420px;
+          color: var(--color-text-dark-muted);
+          line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+          .product-quote-wrapper {
+            grid-template-columns: 1fr;
+          }
+
+          .product-quote-info {
+            border-right: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .product-quote-section {
+            padding: 70px 0;
+          }
+
+          .product-quote-info,
+          .product-quote-form-column {
+            padding: 34px 22px;
+          }
+
+          .product-form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .product-quote-submit {
+            width: 100%;
+            min-width: 0;
+          }
         }
 
         /* Gradient & Typography Utilities */
@@ -1208,26 +1556,20 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           transform: translateX(4px);
         }
 
-        /* Quiz Section */
-        .quiz-selector-section {
+        /* Interactive stone selector */
+        .stone-selector-section {
           background-color: #121316;
         }
 
-        .quiz-card-wrapper {
+        .stone-selector-card {
           display: grid;
-          grid-template-columns: 1fr 1.2fr;
+          grid-template-columns: 0.78fr 1.22fr;
           border: 1px solid rgba(197, 168, 128, 0.15);
           background: linear-gradient(135deg, rgba(23, 24, 28, 0.8) 0%, rgba(15, 16, 18, 0.9) 100%);
           box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
         }
 
-        @media (max-width: 900px) {
-          .quiz-card-wrapper {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .quiz-info-block {
+        .selector-intro {
           padding: 60px;
           display: flex;
           flex-direction: column;
@@ -1235,276 +1577,378 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
           border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        @media (max-width: 900px) {
-          .quiz-info-block {
-            padding: 40px;
-            border-right: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          }
-        }
-
-        .quiz-title-main {
+        .selector-title {
           font-size: 2.2rem;
           color: #ffffff;
-          margin-bottom: 20px;
+          margin: 14px 0 20px;
         }
 
-        .quiz-subtitle-main {
+        .selector-description {
           font-size: 0.95rem;
-          line-height: 1.6;
+          line-height: 1.7;
           color: var(--color-text-dark-muted);
           font-weight: 300;
-          margin-bottom: 40px;
+          margin-bottom: 30px;
         }
 
-        .quiz-steps-indicators {
+        .selector-progress {
           display: flex;
-          gap: 15px;
+          align-items: center;
+          gap: 10px;
         }
 
-        .step-dot {
-          width: 8px;
-          height: 8px;
+        .selector-progress > span {
+          width: 30px;
+          height: 3px;
           background-color: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
           transition: var(--transition-fast);
         }
 
-        .step-dot.active {
+        .selector-progress > span.active {
           background-color: var(--color-accent-gold);
-          box-shadow: 0 0 8px var(--color-accent-gold);
         }
 
-        .quiz-interactive-block {
-          padding: 60px;
+        .selector-progress small {
+          color: var(--color-text-dark-muted);
+          font-size: 0.68rem;
+          margin-left: 4px;
+        }
+
+        .selector-selections {
           display: flex;
-          flex-direction: column;
-          justify-content: center;
-          min-height: 400px;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 26px;
         }
 
-        @media (max-width: 900px) {
-          .quiz-interactive-block {
-            padding: 40px;
-            min-height: 350px;
-          }
+        .selector-selections span {
+          padding: 6px 9px;
+          color: var(--color-accent-gold);
+          font-size: 0.65rem;
+          background-color: rgba(197, 168, 128, 0.08);
+          border: 1px solid rgba(197, 168, 128, 0.18);
         }
 
-        .quiz-step-content {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .quiz-step-title {
-          font-family: var(--font-serif);
-          font-size: 1.25rem;
-          color: #ffffff;
-          margin-bottom: 10px;
-        }
-
-        .quiz-options-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .quiz-option-btn {
+        .selector-interactive {
+          padding: 48px;
+          min-height: 540px;
           display: flex;
           align-items: center;
-          gap: 20px;
-          padding: 16px 20px;
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .selector-step {
+          width: 100%;
+        }
+
+        .selector-step-heading {
+          display: flex;
+          align-items: baseline;
+          gap: 14px;
+          margin-bottom: 24px;
+        }
+
+        .selector-step-heading > span {
+          color: var(--color-accent-gold);
+          font-size: 0.68rem;
+          letter-spacing: 0.15em;
+        }
+
+        .selector-step-heading h3 {
+          color: #ffffff;
+          font-size: 1.35rem;
+        }
+
+        .selector-options-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 11px;
+        }
+
+        .selector-option {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 14px;
+          min-height: 78px;
+          padding: 14px 16px;
+          color: #ffffff;
           text-align: left;
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           cursor: pointer;
           transition: var(--transition-fast);
         }
 
-        .quiz-option-btn:hover {
+        .selector-option:hover {
           border-color: var(--color-accent-gold-border);
-          background-color: rgba(255, 255, 255, 0.04);
+          background-color: rgba(197, 168, 128, 0.06);
+          transform: translateY(-2px);
         }
 
-        .option-icon-box {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background-color: rgba(197, 168, 128, 0.1);
-          color: var(--color-accent-gold);
-          flex-shrink: 0;
-        }
-
-        .option-texts {
+        .selector-option > span:not(.selector-option-icon):not(.palette-swatch) {
+          min-width: 0;
           display: flex;
           flex-direction: column;
           gap: 4px;
         }
 
-        .option-title {
-          font-size: 0.95rem;
-          color: #ffffff;
+        .selector-option strong {
+          font-size: 0.85rem;
           font-weight: 500;
         }
 
-        .option-desc {
-          font-size: 0.75rem;
+        .selector-option small {
           color: var(--color-text-dark-muted);
+          font-size: 0.67rem;
+          line-height: 1.35;
         }
 
-        .quiz-back-btn {
-          align-self: flex-start;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
+        .selector-option > svg {
+          color: var(--color-accent-gold);
+          opacity: 0.75;
+        }
+
+        .selector-option-icon {
+          width: 38px;
+          height: 38px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          color: var(--color-accent-gold);
+          background-color: rgba(197, 168, 128, 0.09);
+        }
+
+        .palette-options {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .palette-swatch {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          flex-shrink: 0;
+        }
+
+        .palette-swatch.any {
+          background: conic-gradient(#e8e3d9, #b99972, #506b5a, #374e6b, #24252a, #e8e3d9);
+        }
+
+        .palette-swatch.light {
+          background: linear-gradient(135deg, #ffffff, #d8d2c6);
+        }
+
+        .palette-swatch.dark {
+          background: linear-gradient(135deg, #4b4c50, #090a0c);
+        }
+
+        .palette-swatch.warm {
+          background: linear-gradient(135deg, #e0bd86, #7e4c31);
+        }
+
+        .palette-swatch.green {
+          background: linear-gradient(135deg, #789077, #173f31);
+        }
+
+        .palette-swatch.blue {
+          background: linear-gradient(135deg, #8fb7c8, #203e66);
+        }
+
+        .palette-swatch.accent {
+          background: linear-gradient(135deg, #9b4046, #c59a4a 48%, #315d68);
+        }
+
+        .budget-options {
+          grid-template-columns: 1fr;
+        }
+
+        .budget-option {
+          min-height: 68px;
+          grid-template-columns: 1fr auto;
+        }
+
+        .selector-back,
+        .selector-reset {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          margin-top: 20px;
           color: var(--color-text-dark-muted);
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
           cursor: pointer;
           transition: var(--transition-fast);
-          margin-top: 10px;
         }
 
-        .quiz-back-btn:hover {
+        .selector-back:hover,
+        .selector-reset:hover {
           color: #ffffff;
         }
 
-        /* Color Indicator icons in Quiz step 2 */
-        .color-indicator {
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.15);
+        .stone-selector-card.showing-results {
+          grid-template-columns: 0.65fr 1.35fr;
         }
 
-        .light-color {
-          background: linear-gradient(135deg, #ffffff, #e1dfda);
+        .selector-results-heading {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 20px;
+          margin-bottom: 22px;
         }
 
-        .dark-color {
-          background: linear-gradient(135deg, #24252a, #0b0c0e);
-        }
-
-        .rich-color {
-          background: linear-gradient(135deg, #c5a880, #385b73, #22513f);
-        }
-
-        /* Quiz Result formatting */
-        .result-header {
-          margin-bottom: 10px;
-        }
-
-        .result-label {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-accent-gold);
-          display: block;
-          margin-bottom: 6px;
-        }
-
-        .result-stone-name {
-          font-size: 1.8rem;
+        .selector-results-heading h3 {
           color: #ffffff;
+          font-size: 1.45rem;
+          margin-top: 7px;
         }
 
-        .result-stone-card {
+        .selector-results-heading .selector-reset {
+          margin-top: 0;
+          flex-shrink: 0;
+        }
+
+        .selector-results-grid {
           display: grid;
-          grid-template-columns: 1fr 1.5fr;
-          gap: 24px;
-          background-color: rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          padding: 20px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
         }
 
-        @media (max-width: 600px) {
-          .result-stone-card {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .result-stone-img {
-          width: 100%;
-          aspect-ratio: 1/1;
+        .selector-result-card {
+          display: grid;
+          grid-template-columns: 86px 1fr;
+          min-width: 0;
+          min-height: 106px;
+          color: #ffffff;
+          text-align: left;
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: var(--transition-fast);
         }
 
-        .result-stone-img img {
-          width: 100%;
+        .selector-result-card:hover {
+          border-color: var(--color-accent-gold-border);
+          transform: translateY(-2px);
+        }
+
+        .selector-result-card > img {
+          width: 86px;
           height: 100%;
           object-fit: cover;
         }
 
-        .result-stone-details {
+        .selector-result-content {
+          min-width: 0;
+          padding: 13px 14px;
           display: flex;
           flex-direction: column;
-          gap: 15px;
+          gap: 5px;
         }
 
-        .result-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .result-tag-pill {
-          font-size: 0.65rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          background-color: rgba(255, 255, 255, 0.05);
-          color: rgba(255, 255, 255, 0.8);
-          padding: 4px 8px;
-        }
-
-        .result-tag-pill.gold {
-          background-color: rgba(197, 168, 128, 0.15);
+        .selector-result-content > small {
           color: var(--color-accent-gold);
+          font-size: 0.59rem;
+          text-transform: uppercase;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
-        .result-stone-description {
-          font-size: 0.85rem;
-          line-height: 1.5;
+        .selector-result-content > strong {
+          font-family: var(--font-serif);
+          font-size: 0.9rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .selector-result-content > span {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
           color: var(--color-text-dark-muted);
-          font-weight: 300;
-          white-space: pre-wrap;
-        }
-
-        .result-price {
-          font-size: 0.85rem;
-          color: #ffffff;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
-          padding-top: 12px;
+          font-size: 0.65rem;
           margin-top: auto;
         }
 
-        .price-val {
-          font-weight: 600;
+        .selector-result-content > span svg {
           color: var(--color-accent-gold);
         }
 
-        .result-actions {
+        .selector-empty-result {
+          padding: 42px;
+          color: var(--color-text-dark-muted);
+          font-size: 0.85rem;
+          line-height: 1.6;
+          text-align: center;
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .selector-result-actions {
           display: flex;
           align-items: center;
           gap: 20px;
-          margin-top: 10px;
+          margin-top: 22px;
           flex-wrap: wrap;
         }
 
-        .quiz-reset-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.75rem;
+        .selector-result-actions a {
+          color: var(--color-accent-gold);
+          font-size: 0.7rem;
           text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-text-dark-muted);
-          transition: var(--transition-fast);
-          cursor: pointer;
+          letter-spacing: 0.08em;
+          border-bottom: 1px solid rgba(197, 168, 128, 0.35);
+          padding-bottom: 3px;
         }
 
-        .quiz-reset-btn:hover {
-          color: #ffffff;
+        @media (max-width: 900px) {
+          .stone-selector-card,
+          .stone-selector-card.showing-results {
+            grid-template-columns: 1fr;
+          }
+
+          .selector-intro {
+            padding: 40px;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          }
+
+          .selector-interactive {
+            min-height: 0;
+            padding: 40px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .selector-intro,
+          .selector-interactive {
+            padding: 30px 22px;
+          }
+
+          .selector-options-grid,
+          .palette-options,
+          .selector-results-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .selector-title {
+            font-size: 1.85rem;
+          }
+
+          .selector-results-heading {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .selector-result-actions {
+            align-items: flex-start;
+            flex-direction: column;
+          }
         }
 
         /* Philosophy styling edits */
