@@ -3,6 +3,7 @@ import type { DragEvent, ChangeEvent } from 'react';
 import { Check, Send, Upload, FileText, CheckCircle, Trash2, Ruler, Shield, Sparkles } from 'lucide-react';
 import { mountingServiceGroups } from '../data/mountingServices';
 import type { MountingServiceGroup } from '../data/mountingServices';
+import '../styles/Services.css';
 
 interface ServiceItem {
   id: string;
@@ -138,7 +139,7 @@ export const Services: React.FC = () => {
   };
 
   // Drag & Drop handlers
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragOver(true);
   };
@@ -169,7 +170,7 @@ export const Services: React.FC = () => {
     setFileErrors(errors);
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragOver(false);
     if (e.dataTransfer.files) {
@@ -249,7 +250,7 @@ export const Services: React.FC = () => {
                   id={`card-${service.id}`}
                   className={`service-interactive-card ${isExpanded ? 'expanded' : ''}`}
                 >
-                  <div className="card-top-info" onClick={() => toggleCard(service.id)}>
+                  <div className="card-top-info">
                     <div className="card-image-bg" style={{ backgroundImage: `url(${service.image})` }} />
                     <div className="card-gradient-overlay" />
                     
@@ -258,14 +259,24 @@ export const Services: React.FC = () => {
                       <h3 className="card-title">{service.title}</h3>
                       <p className="card-short-desc">{service.shortDesc}</p>
                       
-                      <button className="card-toggle-indicator">
+                      <button
+                        type="button"
+                        className="card-toggle-indicator"
+                        onClick={() => toggleCard(service.id)}
+                        aria-expanded={isExpanded}
+                        aria-controls={`service-details-${service.id}`}
+                      >
                         {isExpanded ? 'Свернуть детали ↑' : 'Подробнее о ценах ↓'}
                       </button>
                     </div>
                   </div>
 
                   {/* Expandable Accordion Body */}
-                  <div className="card-expanded-body">
+                  <div
+                    id={`service-details-${service.id}`}
+                    className="card-expanded-body"
+                    aria-hidden={!isExpanded}
+                  >
                     <div className="expanded-body-inner">
                       <div className={`expanded-columns ${service.priceGroups ? 'has-price-groups' : ''}`}>
                         
@@ -397,8 +408,9 @@ export const Services: React.FC = () => {
               {!formSubmitted ? (
                 <form onSubmit={handleSubmit} className="project-blueprint-form">
                   <div className="form-group">
-                    <label>Ваше имя</label>
+                    <label htmlFor="service-name">Ваше имя</label>
                     <input 
+                      id="service-name"
                       type="text" 
                       placeholder="Александр" 
                       value={name} 
@@ -408,8 +420,9 @@ export const Services: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Телефон для связи</label>
+                    <label htmlFor="service-phone">Телефон для связи</label>
                     <input 
+                      id="service-phone"
                       type="tel" 
                       placeholder="+7 (999) 000-00-00" 
                       value={phone} 
@@ -419,8 +432,9 @@ export const Services: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Комментарий / Пожелания</label>
+                    <label htmlFor="service-message">Комментарий / Пожелания</label>
                     <textarea 
+                      id="service-message"
                       rows={3} 
                       placeholder="Укажите вид изделия, сорт камня, желаемые сроки..." 
                       value={message}
@@ -430,26 +444,28 @@ export const Services: React.FC = () => {
 
                   {/* Drag and Drop Zone */}
                   <div className="form-group">
-                    <label>Прикрепить файлы (Чертежи, ТЗ, Наброски)</label>
-                    <div 
+                    <span className="form-label" id="service-files-label">Прикрепить файлы (Чертежи, ТЗ, Наброски)</span>
+                    <button
+                      type="button"
                       className={`drag-drop-zone ${isDragOver ? 'dragover' : ''}`}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
                       onClick={triggerFileInput}
+                      aria-labelledby="service-files-label"
                     >
                       <Upload size={24} className="upload-icon" />
-                      <p className="upload-prompt">Перетащите файлы сюда или <span>выберите на диске</span></p>
+                      <span className="upload-prompt">Перетащите файлы сюда или <span>выберите на диске</span></span>
                       <span className="upload-sub">Поддерживаются PDF, DWG, JPG, PNG до 50MB</span>
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        style={{ display: 'none' }} 
-                        onChange={handleFileChange}
-                        accept=".pdf,.dwg,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-                        multiple
-                      />
-                    </div>
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      hidden
+                      onChange={handleFileChange}
+                      accept=".pdf,.dwg,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                      multiple
+                    />
 
                     {fileErrors.length > 0 && (
                       <div className="file-errors" role="alert">
@@ -469,6 +485,7 @@ export const Services: React.FC = () => {
                               type="button" 
                               className="remove-file-btn" 
                               onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                              aria-label={`Удалить файл ${file.name}`}
                             >
                               <Trash2 size={14} />
                             </button>
@@ -499,693 +516,6 @@ export const Services: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Styles for Services */}
-      <style>{`
-        .services-page {
-          background-color: var(--color-bg-dark);
-          color: var(--color-text-dark);
-        }
-
-        /* 1. HERO SECTION */
-        .services-hero {
-          position: relative;
-          min-height: 100vh;
-          min-height: 100svh;
-          display: flex;
-          align-items: center;
-          box-sizing: border-box;
-          padding: 140px 0 100px;
-          background: linear-gradient(to bottom, rgba(15, 16, 18, 0.68), rgba(15, 16, 18, 0.42)),
-                      url('/services-hero-v2.png');
-          background-size: cover;
-          background-position: center;
-          text-align: center;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .hero-content {
-          max-width: 850px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 2;
-        }
-
-        .hero-pre-title {
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.25em;
-          color: var(--color-accent-gold);
-          margin-bottom: 16px;
-          display: inline-block;
-          font-weight: 500;
-        }
-
-        .hero-main-title {
-          font-size: clamp(2.4rem, 5vw, 3.8rem);
-          line-height: 1.15;
-          color: #ffffff;
-          margin-bottom: 24px;
-          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
-        }
-
-        .hero-sub-text {
-          font-size: 1.05rem;
-          line-height: 1.7;
-          color: var(--color-text-dark-muted);
-          margin-bottom: 35px;
-          font-weight: 300;
-        }
-
-        .hero-cta-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        /* SECTION TITLES */
-        .section-title-wrap {
-          text-align: center;
-          margin-bottom: 60px;
-        }
-
-        .section-subtitle {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: var(--color-accent-gold);
-          display: block;
-          margin-bottom: 10px;
-        }
-
-        .section-main-title {
-          font-size: 2.2rem;
-          color: #ffffff;
-          margin-bottom: 16px;
-        }
-
-        .gold-accent-line {
-          width: 50px;
-          height: 1px;
-          background-color: var(--color-accent-gold);
-          margin: 0 auto;
-        }
-
-        /* 2. SERVICES GRID */
-        .services-grid-section {
-          padding: 100px 0;
-        }
-
-        .services-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 40px;
-        }
-
-        .service-interactive-card {
-          background-color: var(--color-bg-card-dark);
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          overflow: hidden;
-          transition: var(--transition-smooth);
-        }
-
-        .service-interactive-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(197, 168, 128, 0.2);
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-top-info {
-          position: relative;
-          padding: 60px;
-          cursor: pointer;
-          min-height: 280px;
-          display: flex;
-          align-items: center;
-        }
-
-        @media (max-width: 768px) {
-          .card-top-info {
-            padding: 30px 20px;
-            min-height: 220px;
-          }
-        }
-
-        .card-image-bg {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-size: cover;
-          background-position: center;
-          opacity: 0.15;
-          transition: var(--transition-smooth);
-        }
-
-        .service-interactive-card:hover .card-image-bg {
-          opacity: 0.25;
-          transform: scale(1.03);
-        }
-
-        .card-gradient-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, rgba(15,16,18,0.95) 40%, rgba(15,16,18,0.4) 100%);
-        }
-
-        .card-header-content {
-          position: relative;
-          z-index: 2;
-          width: 100%;
-        }
-
-        .card-icon-box {
-          font-size: 2.2rem;
-          margin-bottom: 15px;
-        }
-
-        .card-title {
-          font-size: 1.8rem;
-          color: #ffffff;
-          margin-bottom: 12px;
-        }
-
-        .card-short-desc {
-          font-size: 0.92rem;
-          color: var(--color-text-dark-muted);
-          max-width: 650px;
-          line-height: 1.6;
-          margin-bottom: 16px;
-        }
-
-        .card-toggle-indicator {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: var(--color-accent-gold);
-          font-weight: 600;
-          margin-top: 10px;
-        }
-
-        /* Accordion transition logic */
-        .card-expanded-body {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-          border-top: 1px solid transparent;
-        }
-
-        .service-interactive-card.expanded .card-expanded-body {
-          max-height: 10000px;
-          border-top-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .expanded-body-inner {
-          padding: 50px 60px;
-          background-color: rgba(0, 0, 0, 0.15);
-        }
-
-        @media (max-width: 768px) {
-          .expanded-body-inner {
-            padding: 30px 20px;
-          }
-        }
-
-        .expanded-columns {
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 50px;
-        }
-
-        .expanded-columns.has-price-groups {
-          grid-template-columns: 1fr;
-        }
-
-        @media (max-width: 900px) {
-          .expanded-columns {
-            grid-template-columns: 1fr;
-            gap: 30px;
-          }
-        }
-
-        .expanded-tech-spec h4, .expanded-pricing-table h4 {
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: var(--color-accent-gold);
-          margin-bottom: 20px;
-        }
-
-        .expanded-bullet-list {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-        }
-
-        .expanded-bullet-list li {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          font-size: 0.88rem;
-          line-height: 1.5;
-          color: var(--color-text-dark-muted);
-        }
-
-        .bullet-check-icon {
-          color: var(--color-accent-gold);
-          margin-top: 3px;
-          flex-shrink: 0;
-        }
-
-        .pricing-items-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .price-groups-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 36px 50px;
-        }
-
-        .price-group h5 {
-          color: #ffffff;
-          font-size: 1rem;
-          line-height: 1.35;
-          margin-bottom: 18px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(197, 168, 128, 0.24);
-        }
-
-        @media (max-width: 900px) {
-          .price-groups-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .price-item-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 0.88rem;
-        }
-
-        .price-operation {
-          color: #ffffff;
-        }
-
-        .price-spacer-dots {
-          flex-grow: 1;
-          height: 1px;
-          border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
-          margin: 0 15px;
-        }
-
-        .price-cost {
-          flex-shrink: 0;
-          color: var(--color-accent-gold);
-          font-weight: 500;
-          white-space: nowrap;
-        }
-
-        /* 3. WORKFLOW TIMELINE */
-        .workflow-section {
-          padding: 100px 0;
-          background-color: rgba(255,255,255,0.005);
-          border-top: 1px solid rgba(255, 255, 255, 0.03);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .workflow-timeline {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 40px;
-          margin-top: 60px;
-        }
-
-        @media (max-width: 900px) {
-          .workflow-timeline {
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-          }
-        }
-
-        @media (max-width: 500px) {
-          .workflow-timeline {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .workflow-card-step {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          padding: 20px;
-        }
-
-        .step-num-badge {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 70px;
-          height: 70px;
-          margin-bottom: 24px;
-        }
-
-        .step-num-text {
-          font-family: var(--font-serif);
-          font-size: 1.6rem;
-          color: #ffffff;
-          font-weight: 400;
-          z-index: 2;
-        }
-
-        .step-num-ring {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border: 1px solid rgba(197, 168, 128, 0.2);
-          border-radius: 50%;
-          background-color: rgba(15,16,18,0.5);
-          z-index: 1;
-          transition: var(--transition-smooth);
-        }
-
-        .workflow-card-step:hover .step-num-ring {
-          border-color: var(--color-accent-gold);
-          transform: scale(1.08);
-          box-shadow: 0 0 15px rgba(197, 168, 128, 0.2);
-        }
-
-        .step-title {
-          font-size: 1.15rem;
-          color: #ffffff;
-          margin-bottom: 12px;
-          font-weight: 400;
-        }
-
-        .step-description {
-          font-size: 0.82rem;
-          line-height: 1.6;
-          color: var(--color-text-dark-muted);
-          font-weight: 300;
-        }
-
-        .step-connecting-line {
-          position: absolute;
-          top: 35px;
-          left: calc(50% + 35px);
-          width: calc(100% - 70px);
-          height: 1px;
-          background: linear-gradient(to right, rgba(197, 168, 128, 0.3) 0%, rgba(197, 168, 128, 0.02) 100%);
-          z-index: 0;
-        }
-
-        @media (max-width: 900px) {
-          .step-connecting-line {
-            display: none;
-          }
-        }
-
-
-
-        /* 5. CONVERSION SECTION */
-        .conversion-section {
-          padding-bottom: 100px;
-        }
-
-        .conversion-wrapper {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          background-color: var(--color-bg-card-dark);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        }
-
-        @media (max-width: 900px) {
-          .conversion-wrapper {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .conversion-info-col {
-          padding: 60px;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        @media (max-width: 768px) {
-          .conversion-info-col {
-            padding: 30px 20px;
-          }
-        }
-
-        .conv-title {
-          font-size: 2.2rem;
-          color: #ffffff;
-          margin-bottom: 16px;
-        }
-
-        .conv-desc {
-          font-size: 0.9rem;
-          color: var(--color-text-dark-muted);
-          line-height: 1.6;
-          margin-bottom: 40px;
-          font-weight: 300;
-        }
-
-        .benefits-list {
-          display: flex;
-          flex-direction: column;
-          gap: 25px;
-        }
-
-        .benefit-item {
-          display: flex;
-          gap: 15px;
-          align-items: flex-start;
-        }
-
-        .benefit-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          border: 1px solid rgba(197, 168, 128, 0.2);
-          color: var(--color-accent-gold);
-          flex-shrink: 0;
-          background-color: rgba(197, 168, 128, 0.03);
-        }
-
-        .benefit-item h5 {
-          font-size: 0.95rem;
-          color: #ffffff;
-          margin-bottom: 4px;
-        }
-
-        .benefit-item p {
-          font-size: 0.78rem;
-          color: var(--color-text-dark-muted);
-          line-height: 1.4;
-        }
-
-        /* Form Col */
-        .conversion-form-col {
-          padding: 60px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          background-color: rgba(255, 255, 255, 0.005);
-        }
-
-        @media (max-width: 768px) {
-          .conversion-form-col {
-            padding: 30px 20px;
-          }
-        }
-
-        .project-blueprint-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .form-group label {
-          font-size: 0.72rem;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--color-accent-gold);
-          font-weight: 500;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="tel"],
-        .form-group textarea {
-          background-color: rgba(0, 0, 0, 0.15);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 12px 16px;
-          color: #ffffff;
-          font-family: var(--font-sans);
-          font-size: 0.85rem;
-          outline: none;
-          transition: var(--transition-fast);
-        }
-
-        .form-group input[type="text"]:focus,
-        .form-group input[type="tel"]:focus,
-        .form-group textarea:focus {
-          border-color: var(--color-accent-gold);
-        }
-
-        /* Drag & Drop */
-        .drag-drop-zone {
-          border: 1px dashed rgba(255, 255, 255, 0.15);
-          background-color: rgba(0, 0, 0, 0.1);
-          padding: 25px;
-          text-align: center;
-          cursor: pointer;
-          transition: var(--transition-fast);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .drag-drop-zone:hover, .drag-drop-zone.dragover {
-          border-color: var(--color-accent-gold);
-          background-color: rgba(197, 168, 128, 0.04);
-        }
-
-        .upload-icon {
-          color: var(--color-accent-gold);
-        }
-
-        .upload-prompt {
-          font-size: 0.85rem;
-          color: #ffffff;
-        }
-
-        .upload-prompt span {
-          color: var(--color-accent-gold);
-          text-decoration: underline;
-        }
-
-        .upload-sub {
-          font-size: 0.7rem;
-          color: var(--color-text-dark-muted);
-        }
-
-        .file-errors {
-          margin-top: 10px;
-          color: #e7a1a1;
-          font-size: 0.75rem;
-          line-height: 1.5;
-        }
-
-        /* Attached files list */
-        .attached-files-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-top: 10px;
-        }
-
-        .attached-file-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background-color: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.05);
-          padding: 10px 15px;
-          font-size: 0.78rem;
-        }
-
-        .file-icon {
-          color: var(--color-accent-gold);
-          flex-shrink: 0;
-        }
-
-        .file-name {
-          color: #ffffff;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          flex-grow: 1;
-        }
-
-        .file-size {
-          color: var(--color-text-dark-muted);
-          flex-shrink: 0;
-        }
-
-        .remove-file-btn {
-          color: var(--color-text-dark-muted);
-          transition: var(--transition-fast);
-          display: flex;
-          align-items: center;
-        }
-
-        .remove-file-btn:hover {
-          color: #ef4444;
-        }
-
-        .submit-project-btn {
-          margin-top: 10px;
-          padding: 15px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-
-        /* Success screen */
-        .form-success-container {
-          text-align: center;
-          padding: 40px 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .success-check-ring {
-          color: #10b981;
-        }
-
-        .form-success-container h3 {
-          font-size: 1.5rem;
-          color: #ffffff;
-        }
-
-        .form-success-container p {
-          font-size: 0.85rem;
-          color: var(--color-text-dark-muted);
-          line-height: 1.6;
-          margin-bottom: 10px;
-        }
-      `}</style>
     </div>
   );
 };
@@ -1195,13 +525,5 @@ const ArrowRightIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="btn-arrow-svg">
     <line x1="5" y1="12" x2="19" y2="12"></line>
     <polyline points="12 5 19 12 12 19"></polyline>
-    <style>{`
-      .btn-arrow-svg {
-        transition: transform 0.3s ease;
-      }
-      button:hover .btn-arrow-svg {
-        transform: translateX(4px);
-      }
-    `}</style>
   </svg>
 );

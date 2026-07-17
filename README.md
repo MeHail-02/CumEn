@@ -1,32 +1,32 @@
-# React + TypeScript + Vite
+# ATLAS STONE
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Одностраничный сайт-каталог натурального камня и услуг по изготовлению и монтажу изделий. Проект написан на React, TypeScript и Vite.
 
-Currently, two official plugins are available:
+## Запуск
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Требуется Node.js 20.19+ или 22.12+.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm ci
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Локальный адрес по умолчанию: `http://localhost:5173`.
+
+## Проверки
+
+```bash
+npm run check
+```
+
+Команда последовательно запускает линтер, автоматические тесты и production-сборку. Отдельно доступны `npm run lint`, `npm run test` и `npm run build`.
+
+## Маршрутизация и публикация
+
+Публичные адреса сайта: `/`, `/catalog`, `/services` и `/stone/:id`. Хостинг должен возвращать `index.html` для неизвестных путей, чтобы прямое открытие страниц работало как SPA. Для Netlify-совместимых платформ правило уже добавлено в `public/_redirects`; на другом сервере настройте эквивалентный rewrite.
+
+Каталог загружается отдельным модулем только при переходе в каталог, карточку камня или при запуске подбора на главной. Это сохраняет лёгкую первоначальную загрузку главной страницы.
+
+## Отложенные интеграции
+
+Формы сейчас работают только на стороне интерфейса и не отправляют данные на сервер. Перед публикацией нужно подключить обработчик заявок, добавить политику конфиденциальности и текст согласия на обработку персональных данных.
