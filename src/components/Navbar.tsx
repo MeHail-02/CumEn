@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
   };
 
   return (
-    <header className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
+    <header className={`navbar ${currentView === 'hub' || currentView === 'services' ? 'navbar-over-hero' : ''} ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-container">
         {/* Logo */}
         <div className="logo" onClick={() => handleNavClick('hub')}>
@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
             className={`nav-link ${currentView === 'services' ? 'active' : ''}`}
             onClick={() => handleNavClick('services')}
           >
-            Услуги & Производство
+            Услуги по монтажу
           </button>
         </nav>
 
@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
             className={`mobile-nav-link ${currentView === 'services' ? 'active' : ''}`}
             onClick={() => handleNavClick('services')}
           >
-            Услуги & Производство
+            Услуги по монтажу
           </button>
           
           <div className="mobile-drawer-footer">
@@ -130,17 +130,57 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
           left: 0;
           width: 100%;
           z-index: 1000;
-          background-color: rgba(15, 16, 18, 0.4);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          isolation: isolate;
+          background: rgba(15, 16, 18, 0.82);
+          backdrop-filter: blur(18px) saturate(125%);
+          -webkit-backdrop-filter: blur(18px) saturate(125%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
           transition: var(--transition-smooth);
+        }
+
+        .navbar::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          pointer-events: none;
+          opacity: 0;
+          background:
+            radial-gradient(circle at 12% -40%, rgba(255, 255, 255, 0.34), transparent 38%),
+            radial-gradient(circle at 72% 140%, rgba(197, 168, 128, 0.16), transparent 42%);
+          transition: opacity 0.45s ease;
+        }
+
+        .navbar-over-hero {
+          background:
+            linear-gradient(115deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.025) 36%, rgba(15, 16, 18, 0.22) 72%),
+            rgba(15, 16, 18, 0.3);
+          backdrop-filter: blur(22px) saturate(145%) contrast(108%);
+          -webkit-backdrop-filter: blur(22px) saturate(145%) contrast(108%);
+          border-bottom-color: rgba(255, 255, 255, 0.16);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.035),
+            0 14px 34px rgba(0, 0, 0, 0.14);
+        }
+
+        .navbar-over-hero::before {
+          opacity: 1;
         }
         
         .navbar-scrolled {
-          background-color: rgba(15, 16, 18, 0.95);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+          background: rgba(15, 16, 18, 0.76);
+          backdrop-filter: blur(28px) saturate(135%);
+          -webkit-backdrop-filter: blur(28px) saturate(135%);
+          border-bottom-color: rgba(255, 255, 255, 0.11);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 8px 30px rgba(0, 0, 0, 0.38);
+        }
+
+        .navbar-scrolled::before {
+          opacity: 0.45;
         }
 
         .navbar-container {
@@ -303,8 +343,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
           width: 80%;
           max-width: 400px;
           height: 100vh;
-          background-color: var(--color-bg-dark);
-          box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+          background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(15, 16, 18, 0.56) 35%),
+            rgba(15, 16, 18, 0.78);
+          backdrop-filter: blur(32px) saturate(135%);
+          -webkit-backdrop-filter: blur(32px) saturate(135%);
+          border-left: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow:
+            inset 1px 0 0 rgba(255, 255, 255, 0.05),
+            -14px 0 36px rgba(0, 0, 0, 0.42);
           z-index: 999;
           padding: 120px 40px 40px;
           display: none;

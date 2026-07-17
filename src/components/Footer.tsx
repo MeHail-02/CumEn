@@ -44,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
           <ul className="footer-links">
             <li><button onClick={() => handleNavClick('hub')}>Главная хаб</button></li>
             <li><button onClick={() => handleNavClick('catalog')}>Каталог камня</button></li>
-            <li><button onClick={() => handleNavClick('services')}>Услуги и производство</button></li>
+            <li><button onClick={() => handleNavClick('services')}>Услуги по монтажу</button></li>
             <li><button onClick={handleCalculationClick}>Рассчитать стоимость</button></li>
           </ul>
         </div>
