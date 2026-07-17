@@ -211,10 +211,11 @@ export const Services: React.FC = () => {
       <section className="services-hero">
         <div className="hero-background-overlay" />
         <div className="container hero-content">
-          <span className="hero-pre-title">Изделия из натурального камня</span>
+          <span className="hero-pre-title">Камень в надежных руках — вечность в каждой детали</span>
           <h1 className="hero-main-title">
             От идеи до монтажа:<br />
-            создаем интерьеры из камня
+            Прикосновение к природе,<br />
+            которое останется с вами навсегда
           </h1>
           <p className="hero-sub-text">
             ATLAS STONE сопровождает проект от выбора материала и замера до изготовления и монтажа. Все параметры изделия согласовываются до начала работ.
@@ -478,7 +479,6 @@ export const Services: React.FC = () => {
       {/* Styles for Services */}
       <style>{`
         .services-page {
-          padding-top: 100px;
           background-color: var(--color-bg-dark);
           color: var(--color-text-dark);
         }
@@ -486,9 +486,14 @@ export const Services: React.FC = () => {
         /* 1. HERO SECTION */
         .services-hero {
           position: relative;
+          min-height: 100vh;
+          min-height: 100svh;
+          display: flex;
+          align-items: center;
+          box-sizing: border-box;
           padding: 140px 0 100px;
-          background: linear-gradient(to bottom, rgba(15, 16, 18, 0.95), rgba(15, 16, 18, 0.7)), 
-                      url('/services-hero.jpg');
+          background: linear-gradient(to bottom, rgba(15, 16, 18, 0.68), rgba(15, 16, 18, 0.42)),
+                      url('/services-hero-v2.png');
           background-size: cover;
           background-position: center;
           text-align: center;
@@ -517,6 +522,7 @@ export const Services: React.FC = () => {
           line-height: 1.15;
           color: #ffffff;
           margin-bottom: 24px;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
         }
 
         .hero-sub-text {

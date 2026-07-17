@@ -255,7 +255,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
               Исследовать галерею камней <ArrowRight size={16} />
             </button>
             <button className="btn-gold hero-btn" onClick={() => setView('services')}>
-              Наше производство
+              Услуги по монтажу
             </button>
           </div>
 
@@ -300,7 +300,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             <div className="gateway-overlay" />
             <div className="gateway-content">
               <span className="gateway-tag">Изготовление под проект</span>
-              <h2 className="gateway-title">Производство & Услуги</h2>
+              <h2 className="gateway-title">Услуги по монтажу</h2>
               <p className="gateway-desc">
                 Высокоточное изготовление изделий любой сложности: столешницы, камины, лестницы, стеновые панели с подсветкой и монтаж.
               </p>
