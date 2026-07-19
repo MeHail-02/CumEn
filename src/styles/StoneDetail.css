@@ -386,6 +386,13 @@
           text-align: center;
         }
 
+        .quote-form .btn-gold-solid:disabled,
+        .quote-form .btn-gold-solid:disabled:hover {
+          opacity: 0.48;
+          cursor: not-allowed;
+          transform: none;
+        }
+
         .quote-form-column .lead-success {
           min-height: 100%;
           justify-content: center;

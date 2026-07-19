@@ -20,8 +20,10 @@ import {
 import { CATALOG_TOTAL_COUNT, featuredStones, loadCatalogStones } from '../data/featuredStones';
 import type { Stone } from '../data/stone';
 import { StoneImage } from './StoneImage';
+import { ConsentCheckboxes } from './ConsentCheckboxes';
 import { createPath, type Navigate, type ViewState } from '../routing';
 import { useModalDialog } from '../hooks/useModalDialog';
+import { useLeadSubmission } from '../hooks/useLeadSubmission';
 import '../styles/Hub.css';
 
 interface HubProps {
@@ -223,6 +225,9 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
   const [quoteProduct, setQuoteProduct] = useState('');
   const [quoteDetails, setQuoteDetails] = useState('');
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
+  const [quotePolicyAccepted, setQuotePolicyAccepted] = useState(false);
+  const [quoteConsentAccepted, setQuoteConsentAccepted] = useState(false);
+  const quoteSubmission = useLeadSubmission();
 
   const handleInternalLink = (
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -301,18 +306,22 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
     setQuizResults([]);
   };
 
-  const handleProductQuoteSubmit = (event: React.FormEvent) => {
+  const handleProductQuoteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!quoteName || !quotePhone || !quoteProduct) return;
+    if (!quoteName || !quotePhone || !quoteProduct || !quotePolicyAccepted || !quoteConsentAccepted) return;
 
-    console.log('Product Quote Submission:', {
+    const formData = new FormData(event.currentTarget);
+    const sent = await quoteSubmission.send({
+      formType: 'product_quote',
       name: quoteName,
       phone: quotePhone,
       product: quoteProduct,
       details: quoteDetails,
-    });
-
-    setQuoteSubmitted(true);
+      policyAccepted: quotePolicyAccepted,
+      consentAccepted: quoteConsentAccepted,
+      website: String(formData.get('website') ?? ''),
+    }, 'product_quote_sent');
+    if (sent) setQuoteSubmitted(true);
   };
 
   return (
@@ -774,6 +783,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
             <div className="product-quote-form-column">
               {!quoteSubmitted ? (
                 <form className="product-quote-form" onSubmit={handleProductQuoteSubmit}>
+                  <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="product-form-row">
                     <div className="product-form-group">
                       <label htmlFor="quote-name">Ваше имя</label>
@@ -822,9 +832,22 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                     />
                   </div>
 
-                  <button type="submit" className="btn-gold-solid product-quote-submit">
-                    Оставить заявку на просчет <Send size={16} />
+                  <ConsentCheckboxes
+                    idPrefix="product-quote"
+                    policyAccepted={quotePolicyAccepted}
+                    consentAccepted={quoteConsentAccepted}
+                    onPolicyChange={setQuotePolicyAccepted}
+                    onConsentChange={setQuoteConsentAccepted}
+                  />
+
+                  <button
+                    type="submit"
+                    className="btn-gold-solid product-quote-submit"
+                    disabled={!quotePolicyAccepted || !quoteConsentAccepted || quoteSubmission.isSubmitting}
+                  >
+                    {quoteSubmission.isSubmitting ? 'Отправляем…' : 'Оставить заявку на просчет'} <Send size={16} />
                   </button>
+                  {quoteSubmission.submitError && <p className="form-submit-error" role="alert">{quoteSubmission.submitError}</p>}
                   <p className="product-quote-note">Заявка предназначена только для расчета продукции.</p>
                 </form>
               ) : (
@@ -832,6 +855,7 @@ export const Hub: React.FC<HubProps> = ({ setView }) => {
                   <CheckCircle size={54} strokeWidth={1.5} />
                   <h3>Заявка на просчет принята</h3>
                   <p>Свяжемся с вами, чтобы уточнить параметры изделия и подготовить расчет.</p>
+                  {quoteSubmission.requestId && <p className="form-request-id">Номер обращения: <strong>{quoteSubmission.requestId}</strong></p>}
                 </div>
               )}
             </div>

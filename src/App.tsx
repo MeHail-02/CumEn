@@ -3,6 +3,8 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Hub } from './components/Hub';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { CookieConsent } from './components/CookieConsent';
+import { AnalyticsLoader } from './components/AnalyticsLoader';
 import { createPath, legacyHashToPath, parsePath, type RouteState, type ViewState } from './routing';
 import { setPageMetadata } from './utils/seo';
 import './App.css';
@@ -10,6 +12,7 @@ import './App.css';
 const Catalog = lazy(() => import('./components/Catalog').then(module => ({ default: module.Catalog })));
 const StoneDetail = lazy(() => import('./components/StoneDetail').then(module => ({ default: module.StoneDetail })));
 const Services = lazy(() => import('./components/Services').then(module => ({ default: module.Services })));
+const LegalDocument = lazy(() => import('./components/LegalDocument').then(module => ({ default: module.LegalDocument })));
 
 const PAGE_METADATA: Record<Exclude<ViewState, 'detail'>, { title: string; description: string }> = {
   hub: {
@@ -23,6 +26,18 @@ const PAGE_METADATA: Record<Exclude<ViewState, 'detail'>, { title: string; descr
   services: {
     title: 'Изготовление и монтаж изделий из камня | ATLAS STONE',
     description: 'Изготовление столешниц, лестниц, каминов и панно из натурального камня, обработка, доставка и монтаж.',
+  },
+  privacy: {
+    title: 'Политика обработки персональных данных | ATLAS STONE',
+    description: 'Политика ООО «Атлас Стоун» в отношении обработки и защиты персональных данных посетителей сайта.',
+  },
+  consent: {
+    title: 'Согласие на обработку персональных данных | ATLAS STONE',
+    description: 'Условия согласия на обработку персональных данных при отправке форм на сайте ATLAS STONE.',
+  },
+  cookies: {
+    title: 'Политика использования cookies | ATLAS STONE',
+    description: 'Сведения о cookies, локальном хранилище браузера и настройках аналитики на сайте ATLAS STONE.',
   },
 };
 
@@ -104,6 +119,12 @@ function App() {
         );
       case 'services':
         return <Services />;
+      case 'privacy':
+        return <LegalDocument kind="privacy" setView={handleNavigate} />;
+      case 'consent':
+        return <LegalDocument kind="consent" setView={handleNavigate} />;
+      case 'cookies':
+        return <LegalDocument kind="cookies" setView={handleNavigate} />;
       default:
         return <Hub setView={handleNavigate} />;
     }
@@ -120,6 +141,8 @@ function App() {
         </ErrorBoundary>
       </main>
       <Footer setView={handleNavigate} />
+      <AnalyticsLoader />
+      <CookieConsent />
     </>
   );
 }

@@ -3,6 +3,8 @@ import type { DragEvent, ChangeEvent } from 'react';
 import { Check, Send, Upload, FileText, CheckCircle, Trash2, Ruler, Shield, Sparkles } from 'lucide-react';
 import { mountingServiceGroups } from '../data/mountingServices';
 import type { MountingServiceGroup } from '../data/mountingServices';
+import { ConsentCheckboxes } from './ConsentCheckboxes';
+import { useLeadSubmission } from '../hooks/useLeadSubmission';
 import '../styles/Services.css';
 
 interface ServiceItem {
@@ -104,7 +106,8 @@ const workflowSteps = [
   }
 ];
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_TOTAL_FILE_SIZE = 20 * 1024 * 1024;
 const ALLOWED_FILE_EXTENSIONS = new Set(['pdf', 'dwg', 'jpg', 'jpeg', 'png']);
 
 export const Services: React.FC = () => {
@@ -120,7 +123,10 @@ export const Services: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const projectSubmission = useLeadSubmission();
 
   const toggleCard = (cardId: string) => {
     if (expandedCard === cardId) {
@@ -151,6 +157,7 @@ export const Services: React.FC = () => {
   const addFiles = (newFiles: File[]) => {
     const acceptedFiles: File[] = [];
     const errors: string[] = [];
+    let pendingTotalSize = files.reduce((sum, file) => sum + file.size, 0);
 
     newFiles.forEach(file => {
       const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
@@ -158,15 +165,16 @@ export const Services: React.FC = () => {
       if (!ALLOWED_FILE_EXTENSIONS.has(extension)) {
         errors.push(`${file.name}: неподдерживаемый формат.`);
       } else if (file.size > MAX_FILE_SIZE) {
-        errors.push(`${file.name}: размер превышает 50 МБ.`);
+        errors.push(`${file.name}: размер превышает 10 МБ.`);
+      } else if (pendingTotalSize + file.size > MAX_TOTAL_FILE_SIZE) {
+        errors.push(`${file.name}: общий размер файлов превысит 20 МБ.`);
       } else {
         acceptedFiles.push(file);
+        pendingTotalSize += file.size;
       }
     });
 
-    if (acceptedFiles.length > 0) {
-      setFiles(prev => [...prev, ...acceptedFiles]);
-    }
+    if (acceptedFiles.length > 0) setFiles((previous) => [...previous, ...acceptedFiles]);
     setFileErrors(errors);
   };
 
@@ -195,19 +203,21 @@ export const Services: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!name || !phone) return;
+    if (!name || !phone || !policyAccepted || !consentAccepted) return;
 
-    console.log('Project Quote Submission:', {
+    const formData = new FormData(e.currentTarget);
+    const sent = await projectSubmission.send({
+      formType: 'project_quote',
       name,
       phone,
-      message,
-      attachedFilesCount: files.length,
-      fileNames: files.map(f => f.name)
-    });
-
-    setFormSubmitted(true);
+      details: message,
+      policyAccepted,
+      consentAccepted,
+      website: String(formData.get('website') ?? ''),
+    }, 'project_quote_sent', files);
+    if (sent) setFormSubmitted(true);
   };
 
   return (
@@ -407,6 +417,7 @@ export const Services: React.FC = () => {
             <div className="conversion-form-col">
               {!formSubmitted ? (
                 <form onSubmit={handleSubmit} className="project-blueprint-form">
+                  <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="form-group">
                     <label htmlFor="service-name">Ваше имя</label>
                     <input 
@@ -456,7 +467,7 @@ export const Services: React.FC = () => {
                     >
                       <Upload size={24} className="upload-icon" />
                       <span className="upload-prompt">Перетащите файлы сюда или <span>выберите на диске</span></span>
-                      <span className="upload-sub">Поддерживаются PDF, DWG, JPG, PNG до 50MB</span>
+                      <span className="upload-sub">PDF, DWG, JPG, PNG: до 10 МБ на файл и 20 МБ суммарно</span>
                     </button>
                     <input
                       type="file"
@@ -495,9 +506,22 @@ export const Services: React.FC = () => {
                     )}
                   </div>
 
-                  <button type="submit" className="btn-gold-solid submit-project-btn">
-                    Отправить на расчет <Send size={14} />
+                  <ConsentCheckboxes
+                    idPrefix="service-project"
+                    policyAccepted={policyAccepted}
+                    consentAccepted={consentAccepted}
+                    onPolicyChange={setPolicyAccepted}
+                    onConsentChange={setConsentAccepted}
+                  />
+
+                  <button
+                    type="submit"
+                    className="btn-gold-solid submit-project-btn"
+                    disabled={!policyAccepted || !consentAccepted || projectSubmission.isSubmitting}
+                  >
+                    {projectSubmission.isSubmitting ? 'Отправляем…' : 'Отправить на расчет'} <Send size={14} />
                   </button>
+                  {projectSubmission.submitError && <p className="form-submit-error" role="alert">{projectSubmission.submitError}</p>}
                 </form>
               ) : (
                 <div className="form-success-container">
@@ -506,7 +530,8 @@ export const Services: React.FC = () => {
                   </div>
                   <h3>Заявка отправлена!</h3>
                   <p>Спасибо, <strong>{name}</strong>. Мы уже передали спецификацию в технологический отдел. Наш специалист перезвонит вам по номеру <strong>{phone}</strong> в течение пары часов.</p>
-                  <button className="btn-gold" onClick={() => { setFormSubmitted(false); setFiles([]); setName(''); setPhone(''); setMessage(''); }}>
+                  {projectSubmission.requestId && <p className="form-request-id">Номер обращения: <strong>{projectSubmission.requestId}</strong></p>}
+                  <button className="btn-gold" onClick={() => { setFormSubmitted(false); setFiles([]); setName(''); setPhone(''); setMessage(''); setPolicyAccepted(false); setConsentAccepted(false); projectSubmission.resetSubmission(); }}>
                     Отправить еще один проект
                   </button>
                 </div>

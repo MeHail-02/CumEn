@@ -151,7 +151,21 @@
           line-height: 1.5;
         }
 
-        .newsletter-form {
+.newsletter-form {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          width: 100%;
+}
+
+.newsletter-success {
+  margin: 0.65rem 0 0;
+  color: #d8bd84;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+        .newsletter-fields {
           display: flex;
           width: 100%;
         }
@@ -191,6 +205,14 @@
           color: var(--color-accent-gold);
         }
 
+        .news-submit:disabled,
+        .news-submit:disabled:hover {
+          color: rgba(18, 18, 18, 0.55);
+          background-color: #8f7d66;
+          border-color: #8f7d66;
+          cursor: not-allowed;
+        }
+
         .footer-bottom {
           border-top: 1px solid rgba(255, 255, 255, 0.05);
           padding-top: 30px;
@@ -220,11 +242,14 @@
           justify-content: center;
         }
 
-        .legal-links a {
+        .legal-links a,
+        .legal-links button {
           color: var(--color-text-dark-muted);
+          font: inherit;
         }
 
-        .legal-links a:hover {
+        .legal-links a:hover,
+        .legal-links button:hover {
           color: var(--color-accent-gold);
         }
 
