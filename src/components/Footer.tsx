@@ -1,6 +1,9 @@
-import React from 'react';
-import { Building2, FileText, MapPin, Phone } from 'lucide-react';
-import type { Navigate } from '../routing';
+import React, { useState } from 'react';
+import { Building2, FileText, Mail, MapPin, Phone } from 'lucide-react';
+import { createPath, type Navigate, type ViewState } from '../routing';
+import { ConsentCheckboxes } from './ConsentCheckboxes';
+import { COOKIE_SETTINGS_EVENT } from '../utils/cookiePreferences';
+import { useLeadSubmission } from '../hooks/useLeadSubmission';
 import '../styles/Footer.css';
 
 interface FooterProps {
@@ -8,6 +11,11 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ setView }) => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterPolicyAccepted, setNewsletterPolicyAccepted] = useState(false);
+  const [newsletterConsentAccepted, setNewsletterConsentAccepted] = useState(false);
+  const catalogSubmission = useLeadSubmission();
+
   const handleNavClick = (view: 'hub' | 'catalog' | 'services') => {
     setView(view, null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -24,6 +32,31 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
     setTimeout(() => {
       document.getElementById('service-form')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  const handleLegalClick = (event: React.MouseEvent<HTMLAnchorElement>, view: ViewState) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    setView(view, null);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  const handleNewsletterSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newsletterEmail || !newsletterPolicyAccepted || !newsletterConsentAccepted) return;
+    const formData = new FormData(event.currentTarget);
+    const sent = await catalogSubmission.send({
+      formType: 'catalog_request',
+      email: newsletterEmail,
+      policyAccepted: newsletterPolicyAccepted,
+      consentAccepted: newsletterConsentAccepted,
+      website: String(formData.get('website') ?? ''),
+    }, 'catalog_request_sent');
+    if (sent) {
+      setNewsletterEmail('');
+      setNewsletterPolicyAccepted(false);
+      setNewsletterConsentAccepted(false);
+    }
   };
 
   return (
@@ -60,6 +93,10 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
               <a href="tel:+79166411774">+7 (916) 641-17-74</a>
             </li>
             <li>
+              <Mail size={14} className="contact-icon" />
+              <a href="mailto:sales@atlas-stone.ru">sales@atlas-stone.ru</a>
+            </li>
+            <li>
               <MapPin size={14} className="contact-icon" />
               <span>429120, Чувашская Республика — Чувашия, г. Шумерля, ул. Ломоносова, д. 60, к. 1, кв. 17</span>
             </li>
@@ -80,14 +117,41 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
           <p className="news-desc">
             Оставьте свой email, чтобы получить эксклюзивный PDF-каталог новых поступлений редких сортов мрамора и кварцита.
           </p>
-          <form className="newsletter-form" onSubmit={(e) => { e.preventDefault(); alert('Спасибо за подписку! Каталог отправлен на ваш email.'); }}>
-            <input 
-              type="email" 
-              placeholder="Ваш E-mail" 
-              className="news-input" 
-              required 
+          <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
+            <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+            <div className="newsletter-fields">
+              <input
+                type="email"
+                name="email"
+                aria-label="Email для получения каталога"
+                placeholder="Ваш E-mail"
+                className="news-input"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                className="news-submit"
+                disabled={!newsletterPolicyAccepted || !newsletterConsentAccepted || catalogSubmission.isSubmitting}
+              >
+                {catalogSubmission.isSubmitting ? 'Отправляем…' : 'Получить'}
+              </button>
+            </div>
+            <ConsentCheckboxes
+              idPrefix="newsletter"
+              policyAccepted={newsletterPolicyAccepted}
+              consentAccepted={newsletterConsentAccepted}
+              onPolicyChange={setNewsletterPolicyAccepted}
+              onConsentChange={setNewsletterConsentAccepted}
+              compact
             />
-            <button type="submit" className="news-submit">Получить</button>
+            {catalogSubmission.submitError && <p className="form-submit-error" role="alert">{catalogSubmission.submitError}</p>}
+            {catalogSubmission.requestId && (
+              <p className="newsletter-success" role="status">
+                Запрос принят. Номер обращения: <strong>{catalogSubmission.requestId}</strong>
+              </p>
+            )}
           </form>
         </div>
       </div>
@@ -96,9 +160,13 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
         <div className="container footer-bottom-flex">
           <p className="copyright">&copy; {new Date().getFullYear()} ООО «Атлас Стоун». Все права защищены.</p>
           <div className="legal-links">
-            <a href="#" onClick={(e) => e.preventDefault()}>Политика конфиденциальности</a>
+            <a href={createPath('privacy')} onClick={(event) => handleLegalClick(event, 'privacy')}>Политика обработки персональных данных</a>
             <span className="divider">|</span>
-            <a href="#" onClick={(e) => e.preventDefault()}>Согласие на обработку персональных данных</a>
+            <a href={createPath('consent')} onClick={(event) => handleLegalClick(event, 'consent')}>Согласие на обработку персональных данных</a>
+            <span className="divider">|</span>
+            <a href={createPath('cookies')} onClick={(event) => handleLegalClick(event, 'cookies')}>Политика cookies</a>
+            <span className="divider">|</span>
+            <button type="button" onClick={() => window.dispatchEvent(new Event(COOKIE_SETTINGS_EVENT))}>Настройки cookies</button>
           </div>
         </div>
       </div>

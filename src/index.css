@@ -20,8 +20,8 @@
   --color-border-light: rgba(0, 0, 0, 0.08);
   
   /* Fonts */
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   
   /* Layout & Animations */
   --transition-smooth: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
@@ -48,6 +48,28 @@ body {
   color: var(--color-text-dark);
   overflow-x: hidden;
   line-height: 1.6;
+}
+
+.form-honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.form-submit-error {
+  margin: 0.75rem 0 0;
+  color: #a93535;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.form-request-id {
+  margin-top: 0.75rem;
+  font-size: 0.86rem;
+  opacity: 0.8;
 }
 
 /* Scrollbar customization */

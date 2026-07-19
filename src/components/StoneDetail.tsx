@@ -2,15 +2,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { ArrowLeft, Check, Minimize2, Settings, PhoneCall } from 'lucide-react';
 import { StoneImage } from './StoneImage';
+import { ConsentCheckboxes } from './ConsentCheckboxes';
 import type { Navigate } from '../routing';
 import { setPageMetadata } from '../utils/seo';
 import { useCatalogStones } from '../hooks/useCatalogStones';
+import { useLeadSubmission } from '../hooks/useLeadSubmission';
 import '../styles/StoneDetail.css';
 
 interface StoneDetailProps {
   stoneId: string;
   setView: Navigate;
 }
+
+const PRODUCT_TYPE_LABELS = {
+  countertop: 'Столешница',
+  fireplace: 'Камин',
+  stairs: 'Ступени',
+  'wall-panel': 'Панно',
+} as const;
 
 export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) => {
   const { stonesData, isLoading, error } = useCatalogStones();
@@ -31,6 +40,9 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
+  const stoneSubmission = useLeadSubmission();
 
   useEffect(() => {
     if (!stone) return;
@@ -88,22 +100,25 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
     setView('catalog');
   };
 
-  const handleSubmitLead = (e: React.FormEvent) => {
+  const handleSubmitLead = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userName || !userPhone) return;
+    if (!userName || !userPhone || !policyAccepted || !consentAccepted) return;
 
-    // Simulate lead capture sending config
-    console.log('Lead Captured:', {
-      userName,
-      userPhone,
+    const formData = new FormData(e.currentTarget);
+    const sent = await stoneSubmission.send({
+      formType: 'stone_quote',
+      name: userName,
+      phone: userPhone,
+      product: PRODUCT_TYPE_LABELS[productType],
       stone: stone.name,
-      product: productType,
-      dimensions: `${length}x${width}м`,
+      dimensions: `${length} × ${width} м`,
       thickness,
       details: projectDetails,
-    });
-
-    setFormSubmitted(true);
+      policyAccepted,
+      consentAccepted,
+      website: String(formData.get('website') ?? ''),
+    }, 'stone_quote_sent');
+    if (sent) setFormSubmitted(true);
   };
 
   return (
@@ -255,6 +270,7 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
             <div className="quote-form-column">
               {!formSubmitted ? (
                 <form onSubmit={handleSubmitLead} className="quote-form">
+                  <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <h4 className="quote-form-title">
                     <PhoneCall size={17} className="text-gold" /> Параметры изделия
                   </h4>
@@ -302,7 +318,22 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                     <textarea id="quote-details" rows={3} placeholder="Укажите количество деталей, вырезы, обработку кромки или другие пожелания" value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} />
                   </div>
 
-                  <button type="submit" className="btn-gold-solid w-full">Запросить индивидуальный расчет</button>
+                  <ConsentCheckboxes
+                    idPrefix="stone-quote"
+                    policyAccepted={policyAccepted}
+                    consentAccepted={consentAccepted}
+                    onPolicyChange={setPolicyAccepted}
+                    onConsentChange={setConsentAccepted}
+                  />
+
+                  <button
+                    type="submit"
+                    className="btn-gold-solid w-full"
+                    disabled={!policyAccepted || !consentAccepted || stoneSubmission.isSubmitting}
+                  >
+                    {stoneSubmission.isSubmitting ? 'Отправляем…' : 'Запросить индивидуальный расчет'}
+                  </button>
+                  {stoneSubmission.submitError && <p className="form-submit-error" role="alert">{stoneSubmission.submitError}</p>}
                   <p className="quote-form-note">Точная стоимость формируется после уточнения чертежей и наличия материала.</p>
                 </form>
               ) : (
@@ -310,7 +341,8 @@ export const StoneDetail: React.FC<StoneDetailProps> = ({ stoneId, setView }) =>
                   <div className="success-icon"><Check size={32} /></div>
                   <h4>Заявка принята</h4>
                   <p>Свяжемся с вами по номеру <strong>{userPhone}</strong>, уточним детали и подготовим расчет.</p>
-                  <button onClick={() => setFormSubmitted(false)} className="btn-gold">Изменить параметры</button>
+                  {stoneSubmission.requestId && <p className="form-request-id">Номер обращения: <strong>{stoneSubmission.requestId}</strong></p>}
+                  <button onClick={() => { setFormSubmitted(false); stoneSubmission.resetSubmission(); }} className="btn-gold">Изменить параметры</button>
                 </div>
               )}
             </div>

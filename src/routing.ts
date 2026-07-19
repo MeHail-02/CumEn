@@ -1,4 +1,4 @@
-export type ViewState = 'hub' | 'catalog' | 'detail' | 'services';
+export type ViewState = 'hub' | 'catalog' | 'detail' | 'services' | 'privacy' | 'consent' | 'cookies';
 
 export interface RouteState {
   view: ViewState;
@@ -12,6 +12,9 @@ export const parsePath = (pathname: string): RouteState => {
 
   if (normalizedPath === '/catalog') return { view: 'catalog', stoneId: null };
   if (normalizedPath === '/services') return { view: 'services', stoneId: null };
+  if (normalizedPath === '/privacy-policy') return { view: 'privacy', stoneId: null };
+  if (normalizedPath === '/personal-data-consent') return { view: 'consent', stoneId: null };
+  if (normalizedPath === '/cookies') return { view: 'cookies', stoneId: null };
   if (normalizedPath.startsWith('/stone/')) {
     try {
       const stoneId = decodeURIComponent(normalizedPath.slice('/stone/'.length));
@@ -27,6 +30,9 @@ export const parsePath = (pathname: string): RouteState => {
 export const createPath = (view: ViewState, stoneId: string | null = null) => {
   if (view === 'catalog') return '/catalog';
   if (view === 'services') return '/services';
+  if (view === 'privacy') return '/privacy-policy';
+  if (view === 'consent') return '/personal-data-consent';
+  if (view === 'cookies') return '/cookies';
   if (view === 'detail' && stoneId) return `/stone/${encodeURIComponent(stoneId)}`;
   return '/';
 };

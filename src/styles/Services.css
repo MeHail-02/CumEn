@@ -668,6 +668,13 @@
           gap: 10px;
         }
 
+        .submit-project-btn:disabled,
+        .submit-project-btn:disabled:hover {
+          opacity: 0.48;
+          cursor: not-allowed;
+          transform: none;
+        }
+
         /* Success screen */
         .form-success-container {
           text-align: center;
