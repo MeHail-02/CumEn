@@ -212,10 +212,15 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
     ['Файлы', files.length ? files.map((file) => file.originalname).join(', ') : 'нет'],
   ].filter(([, value]) => value);
 
-  const textBody = rows.map(([label, value]) => `${label}: ${value}`).join('\n');
-  const htmlBody = `<h2>Новая заявка с сайта ATLAS STONE</h2><table cellpadding="7" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#ddd">${rows
-    .map(([label, value]) => `<tr><th align="left">${escapeHtml(label)}</th><td>${escapeHtml(value).replaceAll('\n', '<br>')}</td></tr>`)
-    .join('')}</table>`;
+  const textBody = [
+    'НОВАЯ ЗАЯВКА С САЙТА ATLAS STONE',
+    '',
+    ...rows.map(([label, value]) => `• ${label}: ${value}`),
+  ].join('\n');
+  const htmlBody = `<div style="font-family:Arial,sans-serif;color:#202124;line-height:1.5">
+    <h2 style="margin:0 0 18px">Новая заявка с сайта ATLAS STONE&nbsp;</h2>
+    ${rows.map(([label, value]) => `<div style="margin:0 0 9px">• <strong>${escapeHtml(label)}:</strong>&nbsp; ${escapeHtml(value).replaceAll('\n', '<br>')}</div>`).join('\n')}
+  </div>`;
 
   try {
     const transporter = nodemailer.createTransport(smtpConfig());
@@ -223,7 +228,7 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
       from: process.env.SMTP_FROM || `"ATLAS STONE — сайт" <${process.env.SMTP_USER}>`,
       to: process.env.LEAD_TO,
       replyTo: fields.email || undefined,
-      subject: `[${requestId}] ${formLabels[formType]}${fields.stone ? ` — ${fields.stone}` : ''}`,
+      subject: `Заявка с сайта — ${formLabels[formType]}${fields.stone ? ` — ${fields.stone}` : ''} — ${requestId}`,
       text: textBody,
       html: htmlBody,
       attachments: files.map((file) => ({
