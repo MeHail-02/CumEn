@@ -94,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
             </li>
             <li>
               <Mail size={14} className="contact-icon" />
-              <a href="mailto:sales@atlas-stone.ru">sales@atlas-stone.ru</a>
+              <a href="mailto:sale@atlas-stone.ru">sale@atlas-stone.ru</a>
             </li>
             <li>
               <MapPin size={14} className="contact-icon" />
