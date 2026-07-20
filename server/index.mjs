@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import multer from 'multer';
-import nodemailer from 'nodemailer';
+import { createBitrix24Client } from './bitrix24.mjs';
 
 dotenv.config({ quiet: true });
 
@@ -34,13 +34,6 @@ const cleanText = (value, maxLength = 2000) => String(value ?? '')
   .trim()
   .slice(0, maxLength);
 
-const escapeHtml = (value) => cleanText(value, 10000)
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#039;');
-
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidPhone = (value) => {
   const digits = value.replace(/\D/g, '');
@@ -68,15 +61,16 @@ const getRateLimitState = (address) => {
   return true;
 };
 
-const smtpConfig = () => ({
-  host: process.env.SMTP_HOST || 'smtp.mail.ru',
-  port: Number(process.env.SMTP_PORT || 465),
-  secure: String(process.env.SMTP_SECURE ?? 'true') !== 'false',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-});
+const bitrix24 = process.env.BITRIX24_WEBHOOK_URL
+  ? createBitrix24Client({
+    webhookUrl: process.env.BITRIX24_WEBHOOK_URL,
+    responsibleEmail: process.env.BITRIX24_RESPONSIBLE_EMAIL,
+    responsibleId: process.env.BITRIX24_RESPONSIBLE_ID,
+    fileFieldCode: process.env.BITRIX24_FILE_FIELD,
+    sourceId: process.env.BITRIX24_SOURCE_ID || 'WEB',
+    statusId: process.env.BITRIX24_LEAD_STATUS_ID,
+  })
+  : null;
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -183,8 +177,8 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
     }
   }
 
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD || !process.env.LEAD_TO) {
-    console.error(`[${requestId}] SMTP configuration is incomplete.`);
+  if (!bitrix24) {
+    console.error(`[${requestId}] Bitrix24 webhook is not configured.`);
     return response.status(503).json({ error: 'Сервис отправки временно не настроен. Позвоните нам по телефону.' });
   }
 
@@ -212,35 +206,29 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
     ['Файлы', files.length ? files.map((file) => file.originalname).join(', ') : 'нет'],
   ].filter(([, value]) => value);
 
-  const textBody = [
-    'НОВАЯ ЗАЯВКА С САЙТА ATLAS STONE',
-    '',
-    ...rows.map(([label, value]) => `• ${label}: ${value}`),
-  ].join('\n');
-  const htmlBody = `<div style="font-family:Arial,sans-serif;color:#202124;line-height:1.5">
-    <h2 style="margin:0 0 18px">Новая заявка с сайта ATLAS STONE&nbsp;</h2>
-    ${rows.map(([label, value]) => `<div style="margin:0 0 9px">• <strong>${escapeHtml(label)}:</strong>&nbsp; ${escapeHtml(value).replaceAll('\n', '<br>')}</div>`).join('\n')}
-  </div>`;
+  const comments = rows.map(([label, value]) => `${label}: ${value}`).join('\n');
 
   try {
-    const transporter = nodemailer.createTransport(smtpConfig());
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || `"ATLAS STONE — сайт" <${process.env.SMTP_USER}>`,
-      to: process.env.LEAD_TO,
-      replyTo: fields.email || undefined,
-      subject: `Заявка с сайта — ${formLabels[formType]}${fields.stone ? ` — ${fields.stone}` : ''} — ${requestId}`,
-      text: textBody,
-      html: htmlBody,
-      attachments: files.map((file) => ({
-        filename: file.originalname,
-        content: file.buffer,
-        contentType: file.mimetype,
-      })),
+    const leadId = await bitrix24.createLead({
+      title: `Заявка с сайта — ${formLabels[formType]}${fields.stone ? ` — ${fields.stone}` : ''} — ${requestId}`,
+      name: fields.name,
+      phone: fields.phone,
+      email: fields.email,
+      sourceDescription: `ATLAS STONE — ${formLabels[formType]}`,
+      comments,
+      utm: {
+        source: fields.utmSource,
+        medium: fields.utmMedium,
+        campaign: fields.utmCampaign,
+        content: fields.utmContent,
+        term: fields.utmTerm,
+      },
+      files,
     });
-    console.info(`[${requestId}] Lead email accepted by SMTP (${formType}).`);
+    console.info(`[${requestId}] Bitrix24 lead ${leadId} created (${formType}).`);
     return response.status(201).json({ requestId });
   } catch (error) {
-    console.error(`[${requestId}] SMTP delivery failed:`, error instanceof Error ? error.message : 'unknown error');
+    console.error(`[${requestId}] Bitrix24 lead creation failed:`, error instanceof Error ? error.message : 'unknown error');
     return response.status(502).json({ error: 'Не удалось отправить заявку. Попробуйте ещё раз или позвоните нам.' });
   }
 });
