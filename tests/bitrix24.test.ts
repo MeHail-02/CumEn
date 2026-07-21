@@ -7,12 +7,9 @@ const jsonResponse = (result: unknown, status = 200) => new Response(
 );
 
 describe('Bitrix24 client', () => {
-  it('creates a lead with the responsible employee, attribution and files', async () => {
+  it('creates a lead with attribution and files without assigning an employee', async () => {
     const fetchMock = vi.fn(async (input: URL | RequestInfo, init?: RequestInit) => {
       const method = new URL(String(input)).pathname.split('/').at(-1);
-      if (method === 'user.get.json') {
-        return jsonResponse({ result: [{ ID: '42', EMAIL: 'sales@atlas-stone.ru' }] });
-      }
       if (method === 'crm.lead.userfield.list.json') return jsonResponse({ result: [] });
       if (method === 'crm.lead.userfield.add.json') return jsonResponse({ result: 77 });
       if (method === 'crm.lead.userfield.get.json') {
@@ -23,7 +20,6 @@ describe('Bitrix24 client', () => {
     });
     const client = createBitrix24Client({
       webhookUrl: 'https://example.bitrix24.ru/rest/1/secret/',
-      responsibleEmail: 'sales@atlas-stone.ru',
       fetchImpl: fetchMock,
     });
 
@@ -42,10 +38,10 @@ describe('Bitrix24 client', () => {
     const leadCall = fetchMock.mock.calls.find(([input]) => String(input).endsWith('/crm.lead.add.json'));
     expect(leadCall).toBeDefined();
     const body = JSON.parse(String(leadCall?.[1]?.body));
+    expect(body.fields).not.toHaveProperty('ASSIGNED_BY_ID');
     expect(body.fields).toMatchObject({
       TITLE: 'Заявка с сайта — SITE-TEST-1',
       NAME: 'Александр',
-      ASSIGNED_BY_ID: '42',
       SOURCE_ID: 'WEB',
       UTM_SOURCE: 'yandex',
       UTM_CAMPAIGN: 'stone-search',
@@ -53,11 +49,10 @@ describe('Bitrix24 client', () => {
     });
   });
 
-  it('uses configured IDs without requesting users or creating a field', async () => {
+  it('uses a configured file field without requesting CRM field metadata', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ result: 654 }));
     const client = createBitrix24Client({
       webhookUrl: 'https://example.bitrix24.ru/rest/1/secret',
-      responsibleId: '9',
       fileFieldCode: 'UF_CRM_FILES',
       fetchImpl: fetchMock,
     });
@@ -77,7 +72,6 @@ describe('Bitrix24 client', () => {
     }, 401));
     const client = createBitrix24Client({
       webhookUrl: 'https://example.bitrix24.ru/rest/1/super-secret/',
-      responsibleEmail: 'sales@atlas-stone.ru',
       fetchImpl: fetchMock,
     });
 
