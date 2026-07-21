@@ -207,10 +207,13 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
   ].filter(([, value]) => value);
 
   const comments = rows.map(([label, value]) => `${label}: ${value}`).join('\n');
+  const leadTitle = formType === 'catalog_request'
+    ? fields.email
+    : `${fields.name} — ${fields.phone}`;
 
   try {
     const leadId = await bitrix24.createLead({
-      title: `Заявка с сайта — ${formLabels[formType]}${fields.stone ? ` — ${fields.stone}` : ''} — ${requestId}`,
+      title: leadTitle,
       name: fields.name,
       phone: fields.phone,
       email: fields.email,
