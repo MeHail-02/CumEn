@@ -28,7 +28,7 @@ describe('lead submission transport', () => {
     const request = fetchMock.mock.calls[0][1] as RequestInit;
     const body = request.body as FormData;
     expect(body.get('formType')).toBe('product_quote');
-    expect(body.get('legalVersion')).toBe('2026-07-19');
+    expect(body.get('legalVersion')).toBe('2026-07-21');
     expect(body.get('policyAccepted')).toBe('true');
     expect(body.get('consentAccepted')).toBe('true');
     expect(body.get('utmSource')).toBe('yandex');

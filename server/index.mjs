@@ -64,8 +64,6 @@ const getRateLimitState = (address) => {
 const bitrix24 = process.env.BITRIX24_WEBHOOK_URL
   ? createBitrix24Client({
     webhookUrl: process.env.BITRIX24_WEBHOOK_URL,
-    responsibleEmail: process.env.BITRIX24_RESPONSIBLE_EMAIL,
-    responsibleId: process.env.BITRIX24_RESPONSIBLE_ID,
     fileFieldCode: process.env.BITRIX24_FILE_FIELD,
     sourceId: process.env.BITRIX24_SOURCE_ID || 'WEB',
     statusId: process.env.BITRIX24_LEAD_STATUS_ID,
@@ -141,6 +139,7 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
     utmTerm: cleanText(request.body.utmTerm, 300),
     legalVersion: cleanText(request.body.legalVersion, 50),
     submittedAt: cleanText(request.body.submittedAt, 50),
+    receivedAt: new Date().toISOString(),
   };
 
   const policyAccepted = request.body.policyAccepted === 'true';
@@ -201,6 +200,7 @@ app.post('/api/leads', upload.array('files', maxFiles), async (request, response
     ['UTM content', fields.utmContent],
     ['UTM term', fields.utmTerm],
     ['Дата отправки', fields.submittedAt],
+    ['Дата получения сервером', fields.receivedAt],
     ['Политика', `ознакомление подтверждено, версия ${fields.legalVersion}`],
     ['Согласие', `получено, версия ${fields.legalVersion}`],
     ['Файлы', files.length ? files.map((file) => file.originalname).join(', ') : 'нет'],

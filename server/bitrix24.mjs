@@ -39,8 +39,6 @@ const parseResponse = async (response) => {
 
 export const createBitrix24Client = ({
   webhookUrl,
-  responsibleEmail,
-  responsibleId,
   fileFieldCode,
   sourceId = 'WEB',
   statusId,
@@ -48,8 +46,6 @@ export const createBitrix24Client = ({
   timeoutMs = defaultTimeoutMs,
 }) => {
   const baseUrl = normalizeWebhookUrl(webhookUrl);
-  const normalizedResponsibleEmail = String(responsibleEmail ?? '').trim().toLowerCase();
-  let responsibleIdPromise;
   let fileFieldCodePromise;
 
   if (typeof fetchImpl !== 'function') {
@@ -87,30 +83,6 @@ export const createBitrix24Client = ({
     }
 
     return payload.result;
-  };
-
-  const getResponsibleId = async () => {
-    if (responsibleId) return String(responsibleId);
-    if (!normalizedResponsibleEmail) {
-      throw new Bitrix24Error('Не указан email ответственного сотрудника.', { code: 'RESPONSIBLE_NOT_CONFIGURED' });
-    }
-
-    responsibleIdPromise ??= call('user.get', {
-      FILTER: { EMAIL: normalizedResponsibleEmail },
-    }).then((users) => {
-      const user = Array.isArray(users)
-        ? users.find((item) => String(item.EMAIL ?? '').toLowerCase() === normalizedResponsibleEmail)
-        : undefined;
-      if (!user?.ID) {
-        throw new Bitrix24Error(`Сотрудник ${normalizedResponsibleEmail} не найден в Битрикс24.`, { code: 'RESPONSIBLE_NOT_FOUND' });
-      }
-      return String(user.ID);
-    }).catch((error) => {
-      responsibleIdPromise = undefined;
-      throw error;
-    });
-
-    return responsibleIdPromise;
   };
 
   const getFileFieldCode = async () => {
@@ -157,10 +129,8 @@ export const createBitrix24Client = ({
     utm = {},
     files = [],
   }) => {
-    const assignedById = await getResponsibleId();
     const fields = {
       TITLE: title,
-      ASSIGNED_BY_ID: assignedById,
       SOURCE_ID: sourceId || 'WEB',
       SOURCE_DESCRIPTION: sourceDescription,
       COMMENTS: comments,
